@@ -1,0 +1,19 @@
+/* Estilo para a página */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff; /* Cor de fundo suave */
+    color: #333; /* Cor do texto */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Estilo para o título h1 */
+h1 {
+    font-size: 3em;
+    color: #4CAF50; /* Cor verde */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Sombra do texto */
+    font-weight: bold;
+}
