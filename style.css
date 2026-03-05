@@ -1,9 +1,13 @@
 /* Estilo para a página */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f8ff; /* Cor de fundo suave */
-    color: #333; /* Cor do texto */
+    background-color: #f0f8ff; 
+    color: #333; 
     display: flex;
+    
+    /* ADICIONE ESTA LINHA ABAIXO: */
+    flex-direction: column; /* Faz o H1 ficar em cima e a imagem embaixo */
+    
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -13,7 +17,16 @@ body {
 /* Estilo para o título h1 */
 h1 {
     font-size: 3em;
-    color: #4CAF50; /* Cor verde */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); /* Sombra do texto */
+    color: #4CAF50; 
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); 
     font-weight: bold;
+    margin-bottom: 20px; /* Dá um espaço entre o texto e a imagem */
+}
+
+/* Estilo para a imagem */
+img {
+    width: 250px;       /* Ajuste o tamanho aqui (ex: 200px, 300px) */
+    height: auto;
+    border-radius: 50%; /* Deixa a imagem redondinha */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Adiciona uma sombra suave */
 }
