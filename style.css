@@ -25,8 +25,13 @@ h1 {
 
 /* Estilo para a imagem */
 img {
-    width: 250px;       /* Ajuste o tamanho aqui (ex: 200px, 300px) */
-    height: auto;
-    border-radius: 50%; /* Deixa a imagem redondinha */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Adiciona uma sombra suave */
+    width: 250px;           /* Tamanho fixo para não pesar no render */
+    aspect-ratio: 1 / 1;    /* Garante que seja um quadrado perfeito */
+    object-fit: cover;      /* Corta sobras para manter a proporção */
+    border-radius: 50%;     /* Deixa redonda como o planeta */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    
+    /* Toque especial: uma cor de fundo enquanto carrega */
+    background-color: #ddd; 
 }
+
