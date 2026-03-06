@@ -3,57 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Céu Completo</title>
-    <link rel="stylesheet" href="style.css">
-    
-</head>
-<body class="dia">
-
-    <div id="aviao" class="voar-aviao">✈️</div> 
-    
-    <div id="astro" class="sol"></div>
-    <h1>Olá, Mundo!</h1>
-    <button onclick="mudarTempo()">Mudar para Noite</button>
-    <div class="meteoro" id="meteoro"></div>
-
-    <script>
-        const corpo = document.body;
-        const astro = document.getElementById('astro');
-        const meteoro = document.getElementById('meteoro');
-        const aviao = document.getElementById('aviao');
-        const botao = document.querySelector('button');
-
-        // Criar estrelas ao carregar
-        for (let i = 0; i < 70; i++) {
-            const estrela = document.createElement('div');
-            estrela.className = 'estrela';
-            estrela.style.left = Math.random() * 100 + '%';
-            estrela.style.top = Math.random() * 100 + '%';
-            const tam = Math.random() * 3 + 1;
-            estrela.style.width = tam + 'px';
-            estrela.style.height = tam + 'px';
-            corpo.appendChild(estrela);
-        }
-
-        function mudarTempo() {
-            if (corpo.classList.contains('dia')) {
-                // TROCA PARA NOITE
-                corpo.classList.replace('dia', 'noite');
-                astro.classList.replace('sol', 'lua-cheia');
-                botao.innerHTML = "Mudar para Dia";
-                
-                meteoro.classList.add('animar-meteoro'); // Liga meteoro
-                aviao.classList.remove('voar-aviao');    // Desliga avião
-            } else {
-                // TROCA PARA DIA
-                corpo.classList.replace('noite', 'dia');
-                astro.classList.replace('lua-cheia', 'sol');
-                botao.innerHTML = "Mudar para Noite";
-                
-                meteoro.classList.remove('animar-meteoro'); // Desliga meteoro
-                aviao.classList.add('voar-aviao');       // Liga avião
-            }
-        }
-    </script>
-</body>
-</html>
+    <title>Céu Dinâmico Completo</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
