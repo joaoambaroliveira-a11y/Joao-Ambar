@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Céu Dinâmico</title>
+    <title>Olá Mundo Estelar</title>
     <style>
         body {
             margin: 0;
@@ -12,79 +12,122 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
-            transition: background 1s ease, filter 1s ease;
+            transition: background 1.2s ease, filter 1.2s ease;
             background-size: cover;
             background-position: center;
         }
 
-        /* ESTADO: DIA */
+        /* --- ESTADOS --- */
         .dia {
             background-image: url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?q=80&w=2000');
-            filter: brightness(100%); /* Claridade normal */
+            filter: brightness(100%);
         }
 
-        /* ESTADO: NOITE */
         .noite {
             background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?q=80&w=2000');
-            filter: brightness(40%); /* Fica bem escuro */
+            filter: brightness(30%);
+            background-color: #050b16;
         }
 
-        /* ÍCONES DO CÉU (Sol/Lua) */
+        /* --- ESTRELAS --- */
+        .estrela {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0; /* Escondidas de dia */
+            transition: opacity 1s ease;
+            animation: piscar 2s infinite alternate;
+        }
+
+        /* Mostrar estrelas apenas na noite */
+        .noite .estrela {
+            opacity: 0.8;
+        }
+
+        @keyframes piscar {
+            from { transform: scale(1); opacity: 0.3; }
+            to { transform: scale(1.5); opacity: 1; }
+        }
+
+        /* --- ELEMENTOS --- */
         #astro {
-            font-size: 80px;
-            margin-bottom: 10px;
-            transition: transform 0.8s ease;
+            font-size: 100px;
+            margin-bottom: 20px;
+            transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 10;
         }
 
         h1 {
             color: white;
-            font-size: 4rem;
-            text-shadow: 2px 2px 15px rgba(0, 0, 0, 0.7);
+            font-size: 5rem;
+            text-shadow: 0 0 20px rgba(0,0,0,0.5);
             margin: 0;
             z-index: 10;
+            pointer-events: none;
         }
 
         button {
-            margin-top: 30px;
-            padding: 12px 25px;
-            font-size: 1rem;
+            margin-top: 40px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
             font-weight: bold;
             cursor: pointer;
             border: none;
-            border-radius: 30px;
+            border-radius: 50px;
             background: white;
             color: #333;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
             z-index: 10;
+            transition: 0.3s;
         }
+
+        button:hover { transform: translateY(-3px); }
     </style>
 </head>
 <body class="dia">
 
     <div id="astro">☀️</div>
     <h1>Olá, Mundo!</h1>
-    <button onclick="mudarTempo()">Mudar para Noite</button>
+    <button onclick="mudarTempo()">Ver a Noite</button>
 
     <script>
+        // Criar estrelas aleatórias ao carregar a página
+        const corpo = document.body;
+        for (let i = 0; i < 80; i++) {
+            const estrela = document.createElement('div');
+            estrela.className = 'estrela';
+            
+            // Posição aleatória
+            const x = Math.random() * 100;
+            const y = Math.random() * 100;
+            const tamanho = Math.random() * 3;
+            const atraso = Math.random() * 2;
+
+            estrela.style.left = x + '%';
+            estrela.style.top = y + '%';
+            estrela.style.width = tamanho + 'px';
+            estrela.style.height = tamanho + 'px';
+            estrela.style.animationDelay = atraso + 's';
+
+            corpo.appendChild(estrela);
+        }
+
         function mudarTempo() {
-            const corpo = document.body;
             const astro = document.getElementById('astro');
             const botao = document.querySelector('button');
 
             if (corpo.classList.contains('dia')) {
-                // MUDAR PARA NOITE
                 corpo.classList.replace('dia', 'noite');
                 astro.innerHTML = "🌙";
-                botao.innerHTML = "Mudar para Dia";
-                astro.style.transform = "rotate(360deg)";
+                botao.innerHTML = "Ver o Dia";
+                astro.style.transform = "rotate(360deg) scale(1.2)";
             } else {
-                // MUDAR PARA DIA
                 corpo.classList.replace('noite', 'dia');
                 astro.innerHTML = "☀️";
-                botao.innerHTML = "Mudar para Noite";
-                astro.style.transform = "rotate(0deg)";
+                botao.innerHTML = "Ver a Noite";
+                astro.style.transform = "rotate(0deg) scale(1)";
             }
         }
     </script>
