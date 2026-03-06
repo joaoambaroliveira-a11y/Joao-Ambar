@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Olá Mundo Estelar</title>
+    <title>Céu com Estrelas Brilhantes</title>
     <style>
         body {
             margin: 0;
@@ -12,14 +12,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Arial', sans-serif;
             overflow: hidden;
             transition: background 1.2s ease, filter 1.2s ease;
             background-size: cover;
             background-position: center;
         }
 
-        /* --- ESTADOS --- */
         .dia {
             background-image: url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?q=80&w=2000');
             filter: brightness(100%);
@@ -27,45 +26,53 @@
 
         .noite {
             background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?q=80&w=2000');
-            filter: brightness(30%);
-            background-color: #050b16;
+            filter: brightness(40%);
+            background-color: #020617;
         }
 
-        /* --- ESTRELAS --- */
+        /* --- ESTRELAS TURBINADAS --- */
         .estrela {
             position: absolute;
             background: white;
             border-radius: 50%;
-            opacity: 0; /* Escondidas de dia */
+            opacity: 0; 
             transition: opacity 1s ease;
-            animation: piscar 2s infinite alternate;
+            /* O segredo do brilho está aqui no box-shadow */
+            box-shadow: 0 0 10px 2px white, 0 0 20px 5px rgba(255, 255, 255, 0.4);
+            animation: pulsar 1.5s infinite alternate;
         }
 
-        /* Mostrar estrelas apenas na noite */
         .noite .estrela {
-            opacity: 0.8;
+            opacity: 1; /* Estrelas totalmente visíveis à noite */
         }
 
-        @keyframes piscar {
-            from { transform: scale(1); opacity: 0.3; }
-            to { transform: scale(1.5); opacity: 1; }
+        @keyframes pulsar {
+            from { 
+                transform: scale(0.8); 
+                filter: blur(0px);
+                box-shadow: 0 0 8px 2px white;
+            }
+            to { 
+                transform: scale(1.3); 
+                filter: blur(1px);
+                box-shadow: 0 0 15px 4px white, 0 0 25px 8px rgba(255, 255, 255, 0.6);
+            }
         }
 
-        /* --- ELEMENTOS --- */
+        /* --- INTERFACE --- */
         #astro {
             font-size: 100px;
             margin-bottom: 20px;
-            transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             z-index: 10;
+            transition: transform 1s ease;
         }
 
         h1 {
             color: white;
             font-size: 5rem;
-            text-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3), 2px 2px 10px rgba(0,0,0,0.8);
             margin: 0;
             z-index: 10;
-            pointer-events: none;
         }
 
         button {
@@ -77,13 +84,13 @@
             border: none;
             border-radius: 50px;
             background: white;
-            color: #333;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            color: #111;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
             z-index: 10;
             transition: 0.3s;
         }
 
-        button:hover { transform: translateY(-3px); }
+        button:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="dia">
@@ -93,17 +100,16 @@
     <button onclick="mudarTempo()">Ver a Noite</button>
 
     <script>
-        // Criar estrelas aleatórias ao carregar a página
+        // Criando as estrelas via JS
         const corpo = document.body;
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < 60; i++) {
             const estrela = document.createElement('div');
             estrela.className = 'estrela';
             
-            // Posição aleatória
             const x = Math.random() * 100;
             const y = Math.random() * 100;
-            const tamanho = Math.random() * 3;
-            const atraso = Math.random() * 2;
+            const tamanho = Math.random() * 4 + 1; // Estrelas um pouco maiores
+            const atraso = Math.random() * 3;
 
             estrela.style.left = x + '%';
             estrela.style.top = y + '%';
@@ -122,12 +128,12 @@
                 corpo.classList.replace('dia', 'noite');
                 astro.innerHTML = "🌙";
                 botao.innerHTML = "Ver o Dia";
-                astro.style.transform = "rotate(360deg) scale(1.2)";
+                astro.style.transform = "rotate(360deg)";
             } else {
                 corpo.classList.replace('noite', 'dia');
                 astro.innerHTML = "☀️";
                 botao.innerHTML = "Ver a Noite";
-                astro.style.transform = "rotate(0deg) scale(1)";
+                astro.style.transform = "rotate(0deg)";
             }
         }
     </script>
