@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Céu com Estrelas Brilhantes</title>
+    <title>Céu com Meteoro</title>
     <style>
         body {
             margin: 0;
@@ -30,113 +30,78 @@
             background-color: #020617;
         }
 
-        /* --- ESTRELAS TURBINADAS --- */
+        /* --- ESTRELAS --- */
         .estrela {
             position: absolute;
             background: white;
             border-radius: 50%;
             opacity: 0; 
             transition: opacity 1s ease;
-            /* O segredo do brilho está aqui no box-shadow */
-            box-shadow: 0 0 10px 2px white, 0 0 20px 5px rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 10px 2px white;
             animation: pulsar 1.5s infinite alternate;
         }
-
-        .noite .estrela {
-            opacity: 1; /* Estrelas totalmente visíveis à noite */
-        }
+        .noite .estrela { opacity: 1; }
 
         @keyframes pulsar {
-            from { 
-                transform: scale(0.8); 
-                filter: blur(0px);
-                box-shadow: 0 0 8px 2px white;
-            }
-            to { 
-                transform: scale(1.3); 
-                filter: blur(1px);
-                box-shadow: 0 0 15px 4px white, 0 0 25px 8px rgba(255, 255, 255, 0.6);
-            }
+            from { transform: scale(0.8); opacity: 0.5; }
+            to { transform: scale(1.2); opacity: 1; }
+        }
+
+        /* --- METEORO (Estrela Cadente) --- */
+        .meteoro {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 
+                        0 0 0 8px rgba(255, 255, 255, 0.1), 
+                        0 0 20px rgba(255, 255, 255, 1);
+        }
+
+        /* O rastro do meteoro */
+        .meteoro::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 150px;
+            height: 1px;
+            background: linear-gradient(90deg, #fff, transparent);
+        }
+
+        /* Animação do movimento */
+        .animar-meteoro {
+            animation: riscar 3s linear infinite;
+        }
+
+        @keyframes riscar {
+            0% { transform: rotate(-45deg) translateX(0); opacity: 0; }
+            70% { opacity: 1; }
+            100% { transform: rotate(-45deg) translateX(-1000px); opacity: 0; }
         }
 
         /* --- INTERFACE --- */
-        #astro {
-            font-size: 100px;
-            margin-bottom: 20px;
-            z-index: 10;
-            transition: transform 1s ease;
-        }
-
-        h1 {
-            color: white;
-            font-size: 5rem;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3), 2px 2px 10px rgba(0,0,0,0.8);
-            margin: 0;
-            z-index: 10;
-        }
-
-        button {
-            margin-top: 40px;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            border-radius: 50px;
-            background: white;
-            color: #111;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-            z-index: 10;
-            transition: 0.3s;
-        }
-
-        button:active { transform: scale(0.95); }
+        #astro { font-size: 100px; margin-bottom: 20px; z-index: 10; transition: 1s; }
+        h1 { color: white; font-size: 5rem; text-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 10; }
+        button { margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; cursor: pointer; border: none; border-radius: 50px; background: white; z-index: 10; }
     </style>
 </head>
 <body class="dia">
 
-    <div id="astro">☀️</div>
+    <div class="meteoro" id="meteoro"></div> <div id="astro">☀️</div>
     <h1>Olá, Mundo!</h1>
     <button onclick="mudarTempo()">Ver a Noite</button>
 
     <script>
-        // Criando as estrelas via JS
         const corpo = document.body;
+        const meteoro = document.getElementById('meteoro');
+
+        // Criando estrelas
         for (let i = 0; i < 60; i++) {
             const estrela = document.createElement('div');
             estrela.className = 'estrela';
-            
-            const x = Math.random() * 100;
-            const y = Math.random() * 100;
-            const tamanho = Math.random() * 4 + 1; // Estrelas um pouco maiores
-            const atraso = Math.random() * 3;
-
-            estrela.style.left = x + '%';
-            estrela.style.top = y + '%';
-            estrela.style.width = tamanho + 'px';
-            estrela.style.height = tamanho + 'px';
-            estrela.style.animationDelay = atraso + 's';
-
-            corpo.appendChild(estrela);
-        }
-
-        function mudarTempo() {
-            const astro = document.getElementById('astro');
-            const botao = document.querySelector('button');
-
-            if (corpo.classList.contains('dia')) {
-                corpo.classList.replace('dia', 'noite');
-                astro.innerHTML = "🌙";
-                botao.innerHTML = "Ver o Dia";
-                astro.style.transform = "rotate(360deg)";
-            } else {
-                corpo.classList.replace('noite', 'dia');
-                astro.innerHTML = "☀️";
-                botao.innerHTML = "Ver a Noite";
-                astro.style.transform = "rotate(0deg)";
-            }
-        }
-    </script>
-
-</body>
-</html>
+            estrela.style.left = Math.random() * 100
