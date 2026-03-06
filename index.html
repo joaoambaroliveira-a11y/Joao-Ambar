@@ -36,20 +36,20 @@
         /* --- AVIÃO (SÓ DE DIA) --- */
         #aviao {
             position: absolute;
-            top: 20%;
+            top: 25%;
             left: -100px; /* Começa fora da tela à esquerda */
-            font-size: 30px;
+            font-size: 40px;
             color: white;
             opacity: 0;
             z-index: 4;
             pointer-events: none;
+            filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.2));
         }
-        .voar-aviao { animation: voar 10s linear infinite; opacity: 1 !important; }
+        .voar-aviao { animation: voar 12s linear infinite; opacity: 1 !important; }
 
         @keyframes voar {
-            0% { left: -100px; transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px); } /* Balanço leve */
-            100% { left: 110%; transform: translateY(0); }
+            0% { left: -100px; transform: rotate(0deg); }
+            100% { left: 110%; transform: rotate(0deg); }
         }
 
         /* --- METEORO E ESTRELAS (SÓ À NOITE) --- */
@@ -85,7 +85,9 @@
 </head>
 <body class="dia">
 
-    <div id="aviao" class="voar-aviao">✈️</div> <div id="astro" class="sol"></div>
+    <div id="aviao" class="voar-aviao">✈️</div> 
+    
+    <div id="astro" class="sol"></div>
     <h1>Olá, Mundo!</h1>
     <button onclick="mudarTempo()">Mudar para Noite</button>
     <div class="meteoro" id="meteoro"></div>
