@@ -1,37 +1,23 @@
-/* Estilo para a página */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f8ff; 
-    color: #333; 
-    display: flex;
-    
-    /* ADICIONE ESTA LINHA ABAIXO: */
-    flex-direction: column; /* Faz o H1 ficar em cima e a imagem embaixo */
-    
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-
-/* Estilo para o título h1 */
-h1 {
-    font-size: 3em;
-    color: #4CAF50; 
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2); 
+button {
+    margin-top: 40px;
+    padding: 15px 40px;
+    font-size: 1.2rem;
     font-weight: bold;
-    margin-bottom: 20px; /* Dá um espaço entre o texto e a imagem */
-}
-
-/* Estilo para a imagem */
-img {
-    width: 250px;           /* Tamanho fixo para não pesar no render */
-    aspect-ratio: 1 / 1;    /* Garante que seja um quadrado perfeito */
-    object-fit: cover;      /* Corta sobras para manter a proporção */
-    border-radius: 50%;     /* Deixa redonda como o planeta */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Sombra suave */
+    cursor: pointer;
+    border: none;
+    border-radius: 50px;
+    background: white;
+    color: #111;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
     
-    /* Toque especial: uma cor de fundo enquanto carrega */
-    background-color: #ddd; 
+    /* AS LINHAS ABAIXO SÃO A SOLUÇÃO */
+    position: relative; 
+    z-index: 999; 
+    
+    transition: 0.3s;
 }
 
+button:hover {
+    transform: scale(1.05);
+    background: #f0f0f0;
+}
