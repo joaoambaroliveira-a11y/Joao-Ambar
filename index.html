@@ -104,4 +104,33 @@
         for (let i = 0; i < 60; i++) {
             const estrela = document.createElement('div');
             estrela.className = 'estrela';
-            estrela.style.left = Math.random() * 100
+            estrela.style.left = Math.random() * 100 + '%';
+            estrela.style.top = Math.random() * 100 + '%';
+            const tam = Math.random() * 3 + 1;
+            estrela.style.width = tam + 'px';
+            estrela.style.height = tam + 'px';
+            estrela.style.animationDelay = Math.random() * 2 + 's';
+            corpo.appendChild(estrela);
+        }
+
+        function mudarTempo() {
+            const astro = document.getElementById('astro');
+            const botao = document.querySelector('button');
+
+            if (corpo.classList.contains('dia')) {
+                corpo.classList.replace('dia', 'noite');
+                astro.innerHTML = "🌙";
+                botao.innerHTML = "Ver o Dia";
+                // Ativa o meteoro quando fica de noite
+                meteoro.classList.add('animar-meteoro');
+            } else {
+                corpo.classList.replace('noite', 'dia');
+                astro.innerHTML = "☀️";
+                botao.innerHTML = "Ver a Noite";
+                // Desativa o meteoro de dia
+                meteoro.classList.remove('animar-meteoro');
+            }
+        }
+    </script>
+</body>
+</html>
