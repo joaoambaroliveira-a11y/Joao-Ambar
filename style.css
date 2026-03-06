@@ -1,22 +1,23 @@
 /* --- AVIÃO MAIOR E RETO --- */
         #aviao {
             position: absolute;
-            top: 20%;
-            left: -150px; /* Começa um pouco mais longe */
-            font-size: 60px; /* Aumentei o tamanho (antes era 30px ou 40px) */
+            top: 20%;             /* Altura fixa (não sobe nem desce) */
+            left: -150px;         /* Começa fora da tela */
+            font-size: 60px;      /* Tamanho maior */
             color: white;
             opacity: 0;
             z-index: 4;
             pointer-events: none;
-            /* Removemos o filter de sombra para ele ficar mais nítido */
         }
         
         .voar-aviao { 
+            /* A animação agora usa apenas a movimentação horizontal */
             animation: voar 12s linear infinite; 
             opacity: 1 !important; 
         }
 
         @keyframes voar {
-            0% { left: -150px; } /* Mantém a altura fixa */
-            100% { left: 110%; }  /* Segue uma linha perfeitamente horizontal */
+            0% { left: -150px; }  /* Ponto de partida */
+            100% { left: 110%; }  /* Ponto final na mesma altura */
         }
+        
