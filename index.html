@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Céu com Meteoro</title>
+    <title>Céu com Lua Cheia</title>
     <style>
         body {
             margin: 0;
@@ -14,94 +14,114 @@
             align-items: center;
             font-family: 'Arial', sans-serif;
             overflow: hidden;
-            transition: background 1.2s ease, filter 1.2s ease;
+            transition: background 1.5s ease;
             background-size: cover;
             background-position: center;
         }
 
+        /* --- ESTADOS --- */
         .dia {
             background-image: url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?q=80&w=2000');
-            filter: brightness(100%);
         }
 
         .noite {
             background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?q=80&w=2000');
-            filter: brightness(40%);
             background-color: #020617;
         }
 
-        /* --- ESTRELAS --- */
+        /* --- LUA CHEIA --- */
+        #astro {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            transition: all 1s ease;
+            z-index: 5;
+            margin-bottom: 20px;
+        }
+
+        /* Estilo do Sol */
+        .sol {
+            background: #ffce54;
+            box-shadow: 0 0 60px #ffce54;
+        }
+
+        /* Estilo da Lua Cheia */
+        .lua-cheia {
+            background: #f5f5f5;
+            box-shadow: 0 0 40px #ffffff, 0 0 80px rgba(255, 255, 255, 0.4);
+            background-image: radial-gradient(circle at 30% 30%, #e0e0e0, #f5f5f5); /* Textura leve */
+        }
+
+        /* --- ESTRELAS E METEORO --- */
         .estrela {
             position: absolute;
             background: white;
             border-radius: 50%;
-            opacity: 0; 
-            transition: opacity 1s ease;
-            box-shadow: 0 0 10px 2px white;
-            animation: pulsar 1.5s infinite alternate;
+            opacity: 0;
+            transition: opacity 1s;
+            box-shadow: 0 0 8px white;
+            animation: pulsar 2s infinite alternate;
         }
         .noite .estrela { opacity: 1; }
 
-        @keyframes pulsar {
-            from { transform: scale(0.8); opacity: 0.5; }
-            to { transform: scale(1.2); opacity: 1; }
-        }
+        @keyframes pulsar { from { transform: scale(0.8); } to { transform: scale(1.2); } }
 
-        /* --- METEORO (Estrela Cadente) --- */
         .meteoro {
             position: absolute;
-            top: 50px;
-            left: 50%;
-            width: 2px;
-            height: 2px;
-            background: #fff;
-            border-radius: 50%;
+            top: 10%; left: 110%; /* Começa fora da tela */
+            width: 150px; height: 2px;
+            background: linear-gradient(90deg, white, transparent);
             opacity: 0;
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 
-                        0 0 0 8px rgba(255, 255, 255, 0.1), 
-                        0 0 20px rgba(255, 255, 255, 1);
+            transform: rotate(-35deg);
         }
 
-        /* O rastro do meteoro */
-        .meteoro::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 150px;
-            height: 1px;
-            background: linear-gradient(90deg, #fff, transparent);
-        }
-
-        /* Animação do movimento */
-        .animar-meteoro {
-            animation: riscar 3s linear infinite;
-        }
-
+        .animar-meteoro { animation: riscar 4s linear infinite; }
         @keyframes riscar {
-            0% { transform: rotate(-45deg) translateX(0); opacity: 0; }
-            70% { opacity: 1; }
-            100% { transform: rotate(-45deg) translateX(-1000px); opacity: 0; }
+            0% { left: 110%; opacity: 0; }
+            10% { opacity: 1; }
+            30% { left: -20%; opacity: 0; }
+            100% { left: -20%; opacity: 0; }
         }
 
-        /* --- INTERFACE --- */
-        #astro { font-size: 100px; margin-bottom: 20px; z-index: 10; transition: 1s; }
-        h1 { color: white; font-size: 5rem; text-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 10; }
-        button { margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; cursor: pointer; border: none; border-radius: 50px; background: white; z-index: 10; }
+        /* --- TEXTO E BOTÃO --- */
+        h1 {
+            color: white;
+            font-size: 5rem;
+            text-shadow: 2px 2px 20px rgba(0,0,0,0.7);
+            z-index: 10;
+        }
+
+        button {
+            margin-top: 40px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            color: #111;
+            position: relative; 
+            z-index: 999; /* Garante que o botão seja clicável */
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body class="dia">
 
-    <div class="meteoro" id="meteoro"></div> <div id="astro">☀️</div>
+    <div id="astro" class="sol"></div>
     <h1>Olá, Mundo!</h1>
-    <button onclick="mudarTempo()">Ver a Noite</button>
+    <button onclick="mudarTempo()">Mudar para Noite</button>
+    <div class="meteoro" id="meteoro"></div>
 
     <script>
         const corpo = document.body;
+        const astro = document.getElementById('astro');
         const meteoro = document.getElementById('meteoro');
+        const botao = document.querySelector('button');
 
-        // Criando estrelas
-        for (let i = 0; i < 60; i++) {
+        // Criar estrelas
+        for (let i = 0; i < 70; i++) {
             const estrela = document.createElement('div');
             estrela.className = 'estrela';
             estrela.style.left = Math.random() * 100 + '%';
@@ -109,25 +129,19 @@
             const tam = Math.random() * 3 + 1;
             estrela.style.width = tam + 'px';
             estrela.style.height = tam + 'px';
-            estrela.style.animationDelay = Math.random() * 2 + 's';
             corpo.appendChild(estrela);
         }
 
         function mudarTempo() {
-            const astro = document.getElementById('astro');
-            const botao = document.querySelector('button');
-
             if (corpo.classList.contains('dia')) {
                 corpo.classList.replace('dia', 'noite');
-                astro.innerHTML = "🌙";
-                botao.innerHTML = "Ver o Dia";
-                // Ativa o meteoro quando fica de noite
+                astro.classList.replace('sol', 'lua-cheia');
+                botao.innerHTML = "Mudar para Dia";
                 meteoro.classList.add('animar-meteoro');
             } else {
                 corpo.classList.replace('noite', 'dia');
-                astro.innerHTML = "☀️";
-                botao.innerHTML = "Ver a Noite";
-                // Desativa o meteoro de dia
+                astro.classList.replace('lua-cheia', 'sol');
+                botao.innerHTML = "Mudar para Noite";
                 meteoro.classList.remove('animar-meteoro');
             }
         }
