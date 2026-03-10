@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Céu Dinâmico Completo</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            transition: background 1.5s ease;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* --- ESTADOS DIA/NOITE --- */
+        .dia { background-image: url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?q=80&w=2000'); }
+        .noite { background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?q=80&w=2000'); background-color: #020617; }
+
+        /* --- ASTROS (SOL / LUA) --- */
+        #astro {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            transition: all 1s ease;
+            z-index: 5;
+            margin-bottom: 20px;
+        }
+        .sol { background: #ffce54; box-shadow: 0 0 60px #ffce54; }
+        .lua-cheia { background: #f5f5f5; box-shadow: 0 0 40px #ffffff, 0 0 80px rgba(255,255,255,0.4); }
+
+        /* --- AVIÃO (DIA) --- */
+        #aviao {
+            position: absolute;
+            top: 20%;             
+            left: -150px;         
+            font-size: 60px;      
+            color: white; /* Cor do emoji se for um emoji de avião */
+            opacity: 0;
+            z-index: 4;
+            pointer-events: none;
+            transition: opacity 0.5s ease; /* Transição para sumir/aparecer suavemente */
+        }
+        .voar-aviao { animation: voar 12s linear infinite; opacity: 1; } /* Opacity aqui para garantir */
+
+        @keyframes voar {
+            0% { left: -150px; }
+            100% { left: 110%; }
+        }
+        
+        /* --- PÁSSAROS (DIA) --- */
+        .passaro {
+            position: absolute;
+            font-size: 25px; /* Tamanho do pássaro */
+            color: black;    /* Cor escura para aparecer no céu claro */
+            opacity: 0;      /* Escondido por padrão */
+            z-index: 3;      /* Abaixo do avião, acima das estrelas */
+            pointer-events: none;
+            animation: voarPassaro 15s linear infinite; /* Animação própria */
+            transition: opacity 0.5s ease;
+        }
+        /* Pássaros só aparecem quando é dia */
+        body.dia .passaro { opacity: 0.8; }
+
+        @keyframes voarPassaro {
+            0% { left: -50px; transform: translateY(0); }
+            50% { transform: translateY(-20px); } /* Pequeno balanço */
+            100% { left: 110%; transform: translateY(0); }
+        }
+
+        /* --- METEORO E ESTRELAS (NOITE) --- */
+        .estrela {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0; transition: opacity 1s; box-shadow: 0 0 8px white;
+            animation: pulsar 2s infinite alternate; /* Animação para brilhar */
+        }
+        .noite .estrela { opacity: 1; }
+        @keyframes pulsar { from { transform: scale(0.8); } to { transform: scale(1.2); } }
+
+
+        .meteoro {
+            position: absolute; top: 10%; left: 110%;
+            width: 150px; height: 2px;
+            background: linear-gradient(90deg, white, transparent);
+            opacity: 0; transform: rotate(-35deg);
+        }
+        .animar-meteoro { animation: riscar 4s linear infinite; }
+        @keyframes riscar {
+            0% { left: 110%; opacity: 0; }
+            10% { opacity: 1; }
+            30% { left: -20%; opacity: 0; }
+            100% { left: -20%; opacity: 0; }
+        }
+
+        /* --- INTERFACE --- */
+        h1 { color: white; font-size: 5rem; text-shadow: 2px 2px 20px rgba(0,0,0,0.7); z-index: 10; }
+        button {
+            margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; font-weight: bold;
+            cursor: pointer; border: none; border-radius: 50px;
+            background: white; color: #111; position: relative; z-index: 999;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="dia">
+
+    <div id="aviao">✈️</div> 
+    <div id="astro" class="sol"></div>
+    <h1>Olá, Mundo!</h1>
+    <button onclick="mudarTempo()">Mudar para Noite</button>
+    <div class="meteoro" id="meteoro"></div>
+
+    <script>
+        const corpo = document.body;
+        const astro = document.getElementById('astro');
+        const meteoro = document.getElementById('meteoro');
+        const aviao = document.getElementById('aviao');
+        const botao = document.querySelector('button');
+
+        // --- Geração de Elementos Dinâmicos ---
+        // Criar estrelas ao carregar
+        for (let i = 0; i < 70; i++) {
+            const estrela = document.createElement('div');
+            estrela.className = 'estrela';
+            estrela.style.left = Math.random() * 100 + '%';
+            estrela.style.top = Math.random() * 100 + '%';
+            const tam = Math.random() * 3 + 1;
+            estrela.style.width = tam + 'px';
+            estrela.style.height = tam + 'px';
+            corpo.appendChild(estrela);
+        }
+
+        // Criar pássaros ao carregar
+        for (let i = 0; i < 5; i++) { // Criamos 5 pássaros
+            const passaro = document.createElement('div');
+            passaro.className = 'passaro';
+            passaro.innerHTML = '🐦'; // Emoji de pássaro
+            
+            // Posição e velocidade aleatórias
+            passaro.style.top = (Math.random() * 40 + 5) + '%'; // Entre 5% e 45% do topo
+            passaro.style.animationDuration = (Math.random() * 10 + 10) + 's'; // Entre 10s e 20s
+            passaro.style.animationDelay = (Math.random() * 5) + 's'; // Atraso para voarem em momentos diferentes
+
+            corpo.appendChild(passaro);
+        }
+
+
+        // --- Função de Alternar Dia/Noite ---
+        function mudarTempo() {
+            // Pegar todos os pássaros (importante para controlar a visibilidade)
+            const passaros = document.querySelectorAll('.passaro');
+
+            if (corpo.classList.contains('dia')) {
+                // TROCA PARA NOITE
+                corpo.classList.replace('dia', 'noite');
+                astro.classList.replace('sol', 'lua-cheia');
+                botao.innerHTML = "Mudar para Dia";
+                
+                meteoro.classList.add('animar-meteoro'); // Liga meteoro
+                aviao.classList.remove('voar-aviao');    // Desliga avião
+                passaros.forEach(p => p.classList.remove('voarPassaro')); // Desliga pássaros
+            } else {
+                // TROCA PARA DIA
+                corpo.classList.replace('noite', 'dia');
+                astro.classList.replace('lua-cheia', 'sol');
+                botao.innerHTML = "Mudar para Noite";
+                
+                meteoro.classList.remove('animar-meteoro'); // Desliga meteoro
+                aviao.classList.add('voar-aviao');       // Liga avião
+                passaros.forEach(p => p.classList.add('voarPassaro'));    // Liga pássaros
+            }
+        }
+
+        // Garantir que o avião e os pássaros estejam no estado correto ao carregar
+        // (Já que o body começa com 'dia')
+        window.onload = () => {
+             aviao.classList.add('voar-aviao');
+             const passaros = document.querySelectorAll('.passaro');
+             passaros.forEach(p => p.classList.add('voarPassaro'));
+        };
+    </script>
+</body>
+</html>
