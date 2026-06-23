@@ -1,187 +1,334 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Céu Dinâmico Completo</title>
+    <title>Jogo de Sinuca</title>
     <style>
         body {
             margin: 0;
-            height: 100vh;
+            padding: 0;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            position: relative;
+        }
+        canvas {
+            border: 8px solid #8B4513;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+        #instructions {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #power-bar {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 20px;
+            background: #333;
+            border: 2px solid #fff;
+            border-radius: 10px;
             overflow: hidden;
-            transition: background 1.5s ease;
-            background-size: cover;
-            background-position: center;
         }
-
-        /* --- ESTADOS DIA/NOITE --- */
-        .dia { background-image: url('https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?q=80&w=2000'); }
-        .noite { background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?q=80&w=2000'); background-color: #020617; }
-
-        /* --- ASTROS (SOL / LUA) --- */
-        #astro {
-            width: 120px; height: 120px;
-            border-radius: 50%;
-            transition: all 1s ease;
-            z-index: 5;
-            margin-bottom: 20px;
+        #power {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
+            transition: width 0.05s;
         }
-        .sol { background: #ffce54; box-shadow: 0 0 60px #ffce54; }
-        .lua-cheia { background: #f5f5f5; box-shadow: 0 0 40px #ffffff, 0 0 80px rgba(255,255,255,0.4); }
-
-        /* --- AVIÃO (DIA) --- */
-        #aviao {
-            position: absolute;
-            top: 20%;             
-            left: -150px;         
-            font-size: 60px;      
-            color: white; /* Cor do emoji se for um emoji de avião */
-            opacity: 0;
-            z-index: 4;
-            pointer-events: none;
-            transition: opacity 0.5s ease; /* Transição para sumir/aparecer suavemente */
-        }
-        .voar-aviao { animation: voar 12s linear infinite; opacity: 1; } /* Opacity aqui para garantir */
-
-        @keyframes voar {
-            0% { left: -150px; }
-            100% { left: 110%; }
-        }
-        
-        /* --- PÁSSAROS (DIA) --- */
-        .passaro {
-            position: absolute;
-            font-size: 25px; /* Tamanho do pássaro */
-            color: black;    /* Cor escura para aparecer no céu claro */
-            opacity: 0;      /* Escondido por padrão */
-            z-index: 3;      /* Abaixo do avião, acima das estrelas */
-            pointer-events: none;
-            animation: voarPassaro 15s linear infinite; /* Animação própria */
-            transition: opacity 0.5s ease;
-        }
-        /* Pássaros só aparecem quando é dia */
-        body.dia .passaro { opacity: 0.8; }
-
-        @keyframes voarPassaro {
-            0% { left: -50px; transform: translateY(0); }
-            50% { transform: translateY(-20px); } /* Pequeno balanço */
-            100% { left: 110%; transform: translateY(0); }
-        }
-
-        /* --- METEORO E ESTRELAS (NOITE) --- */
-        .estrela {
-            position: absolute; background: white; border-radius: 50%;
-            opacity: 0; transition: opacity 1s; box-shadow: 0 0 8px white;
-            animation: pulsar 2s infinite alternate; /* Animação para brilhar */
-        }
-        .noite .estrela { opacity: 1; }
-        @keyframes pulsar { from { transform: scale(0.8); } to { transform: scale(1.2); } }
-
-
-        .meteoro {
-            position: absolute; top: 10%; left: 110%;
-            width: 150px; height: 2px;
-            background: linear-gradient(90deg, white, transparent);
-            opacity: 0; transform: rotate(-35deg);
-        }
-        .animar-meteoro { animation: riscar 4s linear infinite; }
-        @keyframes riscar {
-            0% { left: 110%; opacity: 0; }
-            10% { opacity: 1; }
-            30% { left: -20%; opacity: 0; }
-            100% { left: -20%; opacity: 0; }
-        }
-
-        /* --- INTERFACE --- */
-        h1 { color: white; font-size: 5rem; text-shadow: 2px 2px 20px rgba(0,0,0,0.7); z-index: 10; }
         button {
-            margin-top: 40px; padding: 15px 40px; font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; border: none; border-radius: 50px;
-            background: white; color: #111; position: relative; z-index: 999;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="dia">
-
-    <div id="aviao">✈️</div> 
-    <div id="astro" class="sol"></div>
-    <h1>Olá, Mundo!</h1>
-    <button onclick="mudarTempo()">Mudar para Noite</button>
-    <div class="meteoro" id="meteoro"></div>
+<body>
+    <div id="game-container">
+        <canvas id="canvas" width="800" height="500"></canvas>
+        <div id="instructions">Arraste o mouse para mirar • Solte para atirar</div>
+        <div id="power-bar"><div id="power"></div></div>
+        <button onclick="resetGame()">Reiniciar Jogo</button>
+    </div>
 
     <script>
-        const corpo = document.body;
-        const astro = document.getElementById('astro');
-        const meteoro = document.getElementById('meteoro');
-        const aviao = document.getElementById('aviao');
-        const botao = document.querySelector('button');
-
-        // --- Geração de Elementos Dinâmicos ---
-        // Criar estrelas ao carregar
-        for (let i = 0; i < 70; i++) {
-            const estrela = document.createElement('div');
-            estrela.className = 'estrela';
-            estrela.style.left = Math.random() * 100 + '%';
-            estrela.style.top = Math.random() * 100 + '%';
-            const tam = Math.random() * 3 + 1;
-            estrela.style.width = tam + 'px';
-            estrela.style.height = tam + 'px';
-            corpo.appendChild(estrela);
-        }
-
-        // Criar pássaros ao carregar
-        for (let i = 0; i < 5; i++) { // Criamos 5 pássaros
-            const passaro = document.createElement('div');
-            passaro.className = 'passaro';
-            passaro.innerHTML = '🐦'; // Emoji de pássaro
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const powerBar = document.getElementById('power');
+        
+        const TABLE_WIDTH = 760;
+        const TABLE_HEIGHT = 460;
+        const TABLE_X = 20;
+        const TABLE_Y = 20;
+        
+        let balls = [];
+        let cueBall;
+        let mouseX = 0;
+        let mouseY = 0;
+        let power = 0;
+        let shooting = false;
+        
+        const FRICTION = 0.98;
+        const BALL_RADIUS = 12;
+        const POCKET_RADIUS = 18;
+        
+        function initBalls() {
+            balls = [];
+            cueBall = {x: TABLE_X + 180, y: TABLE_Y + TABLE_HEIGHT / 2, vx: 0, vy: 0, color: '#ffffff', number: 0, radius: BALL_RADIUS};
+            balls.push(cueBall);
             
-            // Posição e velocidade aleatórias
-            passaro.style.top = (Math.random() * 40 + 5) + '%'; // Entre 5% e 45% do topo
-            passaro.style.animationDuration = (Math.random() * 10 + 10) + 's'; // Entre 10s e 20s
-            passaro.style.animationDelay = (Math.random() * 5) + 's'; // Atraso para voarem em momentos diferentes
-
-            corpo.appendChild(passaro);
+            const startX = TABLE_X + TABLE_WIDTH - 220;
+            const startY = TABLE_Y + TABLE_HEIGHT / 2;
+            
+            // Formação triangular
+            balls.push({x: startX, y: startY, vx: 0, vy: 0, color: '#ff0000', number: 1, radius: BALL_RADIUS});
+            balls.push({x: startX + 25, y: startY - 13, vx: 0, vy: 0, color: '#ffff00', number: 2, radius: BALL_RADIUS});
+            balls.push({x: startX + 25, y: startY + 13, vx: 0, vy: 0, color: '#0000ff', number: 3, radius: BALL_RADIUS});
+            balls.push({x: startX + 50, y: startY - 26, vx: 0, vy: 0, color: '#800080', number: 4, radius: BALL_RADIUS});
+            balls.push({x: startX + 50, y: startY, vx: 0, vy: 0, color: '#ff8c00', number: 5, radius: BALL_RADIUS});
+            balls.push({x: startX + 50, y: startY + 26, vx: 0, vy: 0, color: '#008000', number: 6, radius: BALL_RADIUS});
+            balls.push({x: startX + 75, y: startY - 39, vx: 0, vy: 0, color: '#ffa500', number: 7, radius: BALL_RADIUS});
+            balls.push({x: startX + 75, y: startY - 13, vx: 0, vy: 0, color: '#ff69b4', number: 8, radius: BALL_RADIUS});
+            balls.push({x: startX + 75, y: startY + 13, vx: 0, vy: 0, color: '#00ffff', number: 9, radius: BALL_RADIUS});
+            balls.push({x: startX + 75, y: startY + 39, vx: 0, vy: 0, color: '#ffd700', number: 10, radius: BALL_RADIUS});
         }
-
-
-        // --- Função de Alternar Dia/Noite ---
-        function mudarTempo() {
-            // Pegar todos os pássaros (importante para controlar a visibilidade)
-            const passaros = document.querySelectorAll('.passaro');
-
-            if (corpo.classList.contains('dia')) {
-                // TROCA PARA NOITE
-                corpo.classList.replace('dia', 'noite');
-                astro.classList.replace('sol', 'lua-cheia');
-                botao.innerHTML = "Mudar para Dia";
-                
-                meteoro.classList.add('animar-meteoro'); // Liga meteoro
-                aviao.classList.remove('voar-aviao');    // Desliga avião
-                passaros.forEach(p => p.classList.remove('voarPassaro')); // Desliga pássaros
-            } else {
-                // TROCA PARA DIA
-                corpo.classList.replace('noite', 'dia');
-                astro.classList.replace('lua-cheia', 'sol');
-                botao.innerHTML = "Mudar para Noite";
-                
-                meteoro.classList.remove('animar-meteoro'); // Desliga meteoro
-                aviao.classList.add('voar-aviao');       // Liga avião
-                passaros.forEach(p => p.classList.add('voarPassaro'));    // Liga pássaros
+        
+        let pockets = [
+            {x: TABLE_X, y: TABLE_Y},
+            {x: TABLE_X + TABLE_WIDTH/2, y: TABLE_Y},
+            {x: TABLE_X + TABLE_WIDTH, y: TABLE_Y},
+            {x: TABLE_X, y: TABLE_Y + TABLE_HEIGHT},
+            {x: TABLE_X + TABLE_WIDTH/2, y: TABLE_Y + TABLE_HEIGHT},
+            {x: TABLE_X + TABLE_WIDTH, y: TABLE_Y + TABLE_HEIGHT}
+        ];
+        
+        function drawTable() {
+            ctx.fillStyle = '#0a6b3a';
+            ctx.fillRect(TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
+            
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 20;
+            ctx.strokeRect(TABLE_X - 10, TABLE_Y - 10, TABLE_WIDTH + 20, TABLE_HEIGHT + 20);
+            
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(TABLE_X - 35, TABLE_Y - 35, TABLE_WIDTH + 70, TABLE_HEIGHT + 70);
+            
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(TABLE_X + 40, TABLE_Y);
+            ctx.lineTo(TABLE_X + 40, TABLE_Y + TABLE_HEIGHT);
+            ctx.stroke();
+            
+            ctx.fillStyle = '#111';
+            pockets.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        function drawBall(ball) {
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.beginPath();
+            ctx.ellipse(ball.x + 4, ball.y + 4, ball.radius * 0.9, ball.radius * 0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.arc(ball.x - 5, ball.y - 5, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            if (ball.number > 0) {
+                ctx.fillStyle = ball.number === 8 ? '#ffffff' : '#111111';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(ball.number, ball.x, ball.y + 1);
             }
         }
-
-        // Garantir que o avião e os pássaros estejam no estado correto ao carregar
-        // (Já que o body começa com 'dia')
+        
+        function drawCue() {
+            if (!cueBall || isMoving()) return;
+            
+            const dx = mouseX - cueBall.x;
+            const dy = mouseY - cueBall.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < 10) return;
+            
+            const angle = Math.atan2(dy, dx);
+            ctx.strokeStyle = '#8B4513';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.shadowBlur = 8;
+            
+            const startX = cueBall.x + Math.cos(angle) * (BALL_RADIUS + 8);
+            const startY = cueBall.y + Math.sin(angle) * (BALL_RADIUS + 8);
+            const endX = startX - Math.cos(angle) * 180;
+            const endY = startY - Math.sin(angle) * 180;
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+        
+        function isMoving() {
+            return balls.some(ball => Math.abs(ball.vx) > 0.1 || Math.abs(ball.vy) > 0.1);
+        }
+        
+        function updatePhysics() {
+            balls.forEach(ball => {
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+                ball.vx *= FRICTION;
+                ball.vy *= FRICTION;
+                if (Math.abs(ball.vx) < 0.1) ball.vx = 0;
+                if (Math.abs(ball.vy) < 0.1) ball.vy = 0;
+                
+                // Colisão com paredes
+                if (ball.x - ball.radius < TABLE_X) { ball.x = TABLE_X + ball.radius; ball.vx = -ball.vx * 0.95; }
+                if (ball.x + ball.radius > TABLE_X + TABLE_WIDTH) { ball.x = TABLE_X + TABLE_WIDTH - ball.radius; ball.vx = -ball.vx * 0.95; }
+                if (ball.y - ball.radius < TABLE_Y) { ball.y = TABLE_Y + ball.radius; ball.vy = -ball.vy * 0.95; }
+                if (ball.y + ball.radius > TABLE_Y + TABLE_HEIGHT) { ball.y = TABLE_Y + TABLE_HEIGHT - ball.radius; ball.vy = -ball.vy * 0.95; }
+            });
+            
+            // Colisão entre bolas
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    const b1 = balls[i], b2 = balls[j];
+                    const dx = b2.x - b1.x;
+                    const dy = b2.y - b1.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < b1.radius + b2.radius && dist > 0) {
+                        const overlap = (b1.radius + b2.radius) - dist;
+                        const nx = dx / dist;
+                        const ny = dy / dist;
+                        
+                        b1.x -= nx * overlap / 2;
+                        b1.y -= ny * overlap / 2;
+                        b2.x += nx * overlap / 2;
+                        b2.y += ny * overlap / 2;
+                        
+                        const dot = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
+                        b1.vx -= dot * nx;
+                        b1.vy -= dot * ny;
+                        b2.vx += dot * nx;
+                        b2.vy += dot * ny;
+                    }
+                }
+            }
+            
+            // Bolas nas caçapas
+            for (let i = balls.length - 1; i >= 0; i--) {
+                const ball = balls[i];
+                for (let p of pockets) {
+                    const dx = ball.x - p.x;
+                    const dy = ball.y - p.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < POCKET_RADIUS + BALL_RADIUS - 4) {
+                        if (ball === cueBall) {
+                            ball.x = TABLE_X + 180;
+                            ball.y = TABLE_Y + TABLE_HEIGHT / 2;
+                            ball.vx = ball.vy = 0;
+                        } else {
+                            balls.splice(i, 1);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTable();
+            balls.forEach(ball => drawBall(ball));
+            drawCue();
+        }
+        
+        function gameLoop() {
+            updatePhysics();
+            draw();
+            
+            if (shooting) {
+                power = Math.min(power + 3.5, 100);
+                powerBar.style.width = power + '%';
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function shoot() {
+            if (!cueBall || isMoving()) return;
+            const dx = cueBall.x - mouseX;
+            const dy = cueBall.y - mouseY;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            if (distance < 30) return;
+            
+            const force = power / 12;
+            cueBall.vx = (dx / distance) * force;
+            cueBall.vy = (dy / distance) * force;
+            
+            power = 0;
+            powerBar.style.width = '0%';
+            shooting = false;
+        }
+        
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+            if (!isMoving()) shooting = true;
+        });
+        
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            if (shooting) shoot();
+        });
+        
+        function resetGame() {
+            initBalls();
+        }
+        
         window.onload = () => {
-             aviao.classList.add('voar-aviao');
-             const passaros = document.querySelectorAll('.passaro');
-             passaros.forEach(p => p.classList.add('voarPassaro'));
+            initBalls();
+            gameLoop();
         };
     </script>
 </body>
