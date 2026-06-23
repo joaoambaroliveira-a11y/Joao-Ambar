@@ -1,350 +1,256 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Sinuca - Mesa Verde</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: #1a1a2e;
-            font-family: Arial, sans-serif;
-        }
-        #game-container {
-            position: relative;
-        }
-        canvas {
-            border: 8px solid #8B4513;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-        }
-        #instructions {
-            position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            pointer-events: none;
-            z-index: 10;
-        }
-        #power-bar {
-            position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 400px;
-            height: 25px;
-            background: #333;
-            border: 3px solid #fff;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        #power {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #00ff00, #ffff00, #ff8800, #ff0000);
-            transition: width 0.03s;
-        }
-        button {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            padding: 10px 18px;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🅿️ Estacionamento - Controle de Veículos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    .vaga { transition: all 0.3s; }
+  </style>
 </head>
-<body>
-    <div id="game-container">
-        <canvas id="canvas" width="800" height="500"></canvas>
-        <div id="instructions">Clique e segure para carregar a força • Solte para tacar</div>
-        <div id="power-bar"><div id="power"></div></div>
-        <button onclick="resetGame()">Reiniciar Jogo</button>
-    </div>
+<body class="bg-gray-100 min-h-screen">
+  <div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-2xl shadow-xl p-8">
+      <h1 class="text-4xl font-bold text-center mb-2 text-gray-800">
+        🅿️ Sistema de Estacionamento
+      </h1>
+      <p class="text-center text-gray-600 mb-8">Controle de Veículos - Geração de CPF/RG</p>
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const powerBar = document.getElementById('power');
-        
-        const TABLE_WIDTH = 760;
-        const TABLE_HEIGHT = 460;
-        const TABLE_X = 20;
-        const TABLE_Y = 20;
-        
-        let balls = [];
-        let cueBall;
-        let mouseX = 0;
-        let mouseY = 0;
-        let power = 0;
-        let shooting = false;
-        let maxPower = 180;
-        
-        const FRICTION = 0.975;
-        const BALL_RADIUS = 12;
-        const POCKET_RADIUS = 18;
-        
-        function initBalls() {
-            balls = [];
-            cueBall = {x: TABLE_X + 180, y: TABLE_Y + TABLE_HEIGHT / 2, vx: 0, vy: 0, color: '#ffffff', number: 0, radius: BALL_RADIUS};
-            balls.push(cueBall);
-            
-            const startX = TABLE_X + TABLE_WIDTH - 220;
-            const startY = TABLE_Y + TABLE_HEIGHT / 2;
-            
-            const colors = ['#ff0000','#ffff00','#0000ff','#800080','#ff8c00','#008000','#ffa500','#ff69b4','#00ffff','#ffd700'];
-            for (let i = 1; i <= 10; i++) {
-                const row = Math.floor((i-1)/4);
-                const col = (i-1)%4;
-                balls.push({
-                    x: startX + row * 28,
-                    y: startY - 20 + col * 26 + (row % 2 === 0 ? 13 : 0),
-                    vx: 0, vy: 0,
-                    color: colors[i-1],
-                    number: i,
-                    radius: BALL_RADIUS
-                });
-            }
-        }
-        
-        let pockets = [
-            {x: TABLE_X, y: TABLE_Y},
-            {x: TABLE_X + TABLE_WIDTH/2, y: TABLE_Y},
-            {x: TABLE_X + TABLE_WIDTH, y: TABLE_Y},
-            {x: TABLE_X, y: TABLE_Y + TABLE_HEIGHT},
-            {x: TABLE_X + TABLE_WIDTH/2, y: TABLE_Y + TABLE_HEIGHT},
-            {x: TABLE_X + TABLE_WIDTH, y: TABLE_Y + TABLE_HEIGHT}
-        ];
-        
-        function drawTable() {
-            // Fundo verde da mesa (alterado)
-            ctx.fillStyle = '#0b8c4f';        // Verde clássico de sinuca
-            ctx.fillRect(TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
-            
-            // Bordas de madeira
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 20;
-            ctx.strokeRect(TABLE_X - 10, TABLE_Y - 10, TABLE_WIDTH + 20, TABLE_HEIGHT + 20);
-            
-            ctx.fillStyle = '#654321';
-            ctx.fillRect(TABLE_X - 35, TABLE_Y - 35, TABLE_WIDTH + 70, TABLE_HEIGHT + 70);
-            
-            // Linha central
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(TABLE_X + 40, TABLE_Y);
-            ctx.lineTo(TABLE_X + 40, TABLE_Y + TABLE_HEIGHT);
-            ctx.stroke();
-            
-            // Caçapas
-            ctx.fillStyle = '#111';
-            pockets.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, POCKET_RADIUS, 0, Math.PI * 2);
-                ctx.fill();
-            });
-        }
-        
-        function drawBall(ball) {
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
-            ctx.beginPath();
-            ctx.ellipse(ball.x + 4, ball.y + 4, ball.radius * 0.9, ball.radius * 0.6, 0, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.fillStyle = ball.color;
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fill();
-            
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.beginPath();
-            ctx.arc(ball.x - 5, ball.y - 5, 6, 0, Math.PI * 2);
-            ctx.fill();
-            
-            if (ball.number > 0) {
-                ctx.fillStyle = ball.number === 8 ? '#ffffff' : '#111111';
-                ctx.font = 'bold 12px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(ball.number, ball.x, ball.y + 1);
-            }
-        }
-        
-        function drawCue() {
-            if (!cueBall || isMoving()) return;
-            
-            const dx = mouseX - cueBall.x;
-            const dy = mouseY - cueBall.y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < 10) return;
-            
-            const angle = Math.atan2(dy, dx);
-            const forceFactor = power / maxPower;
-            
-            ctx.strokeStyle = '#5D2E0F';
-            ctx.lineWidth = 7;
-            ctx.lineCap = 'round';
-            ctx.shadowColor = '#000';
-            ctx.shadowBlur = 10;
-            
-            const pullBack = 60 + forceFactor * 140;
-            
-            const startX = cueBall.x + Math.cos(angle) * (BALL_RADIUS + 10);
-            const startY = cueBall.y + Math.sin(angle) * (BALL_RADIUS + 10);
-            const endX = startX - Math.cos(angle) * pullBack;
-            const endY = startY - Math.sin(angle) * pullBack;
-            
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-        }
-        
-        function isMoving() {
-            return balls.some(ball => Math.abs(ball.vx) > 0.08 || Math.abs(ball.vy) > 0.08);
-        }
-        
-        function updatePhysics() {
-            balls.forEach(ball => {
-                ball.x += ball.vx;
-                ball.y += ball.vy;
-                ball.vx *= FRICTION;
-                ball.vy *= FRICTION;
-                
-                if (Math.abs(ball.vx) < 0.08) ball.vx = 0;
-                if (Math.abs(ball.vy) < 0.08) ball.vy = 0;
-                
-                if (ball.x - ball.radius < TABLE_X) { ball.x = TABLE_X + ball.radius; ball.vx = -ball.vx * 0.92; }
-                if (ball.x + ball.radius > TABLE_X + TABLE_WIDTH) { ball.x = TABLE_X + TABLE_WIDTH - ball.radius; ball.vx = -ball.vx * 0.92; }
-                if (ball.y - ball.radius < TABLE_Y) { ball.y = TABLE_Y + ball.radius; ball.vy = -ball.vy * 0.92; }
-                if (ball.y + ball.radius > TABLE_Y + TABLE_HEIGHT) { ball.y = TABLE_Y + TABLE_HEIGHT - ball.radius; ball.vy = -ball.vy * 0.92; }
-            });
-            
-            for (let i = 0; i < balls.length; i++) {
-                for (let j = i + 1; j < balls.length; j++) {
-                    const b1 = balls[i], b2 = balls[j];
-                    const dx = b2.x - b1.x;
-                    const dy = b2.y - b1.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if (dist < b1.radius + b2.radius && dist > 0) {
-                        const overlap = (b1.radius + b2.radius) - dist;
-                        const nx = dx / dist;
-                        const ny = dy / dist;
-                        
-                        b1.x -= nx * overlap / 2;
-                        b1.y -= ny * overlap / 2;
-                        b2.x += nx * overlap / 2;
-                        b2.y += ny * overlap / 2;
-                        
-                        const dot = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
-                        b1.vx -= dot * nx * 0.95;
-                        b1.vy -= dot * ny * 0.95;
-                        b2.vx += dot * nx * 0.95;
-                        b2.vy += dot * ny * 0.95;
-                    }
-                }
-            }
-            
-            for (let i = balls.length - 1; i >= 0; i--) {
-                const ball = balls[i];
-                for (let p of pockets) {
-                    const dx = ball.x - p.x;
-                    const dy = ball.y - p.y;
-                    if (Math.sqrt(dx*dx + dy*dy) < POCKET_RADIUS + BALL_RADIUS - 4) {
-                        if (ball === cueBall) {
-                            ball.x = TABLE_X + 180;
-                            ball.y = TABLE_Y + TABLE_HEIGHT / 2;
-                            ball.vx = ball.vy = 0;
-                        } else {
-                            balls.splice(i, 1);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawTable();
-            balls.forEach(ball => drawBall(ball));
-            drawCue();
-        }
-        
-        function gameLoop() {
-            updatePhysics();
-            draw();
-            
-            if (shooting) {
-                power = Math.min(power + 5.5, maxPower);
-                powerBar.style.width = (power / maxPower * 100) + '%';
-            }
-            
-            requestAnimationFrame(gameLoop);
-        }
-        
-        function shoot() {
-            if (!cueBall || isMoving()) return;
-            
-            const dx = cueBall.x - mouseX;
-            const dy = cueBall.y - mouseY;
-            const distance = Math.sqrt(dx*dx + dy*dy);
-            if (distance < 30) return;
-            
-            const force = power / 6.5;
-            
-            cueBall.vx = (dx / distance) * force;
-            cueBall.vy = (dy / distance) * force;
-            
-            power = 0;
-            powerBar.style.width = '0%';
-            shooting = false;
-        }
-        
-        canvas.addEventListener('mousedown', e => {
-            const rect = canvas.getBoundingClientRect();
-            mouseX = e.clientX - rect.left;
-            mouseY = e.clientY - rect.top;
-            if (!isMoving()) shooting = true;
-        });
-        
-        canvas.addEventListener('mousemove', e => {
-            const rect = canvas.getBoundingClientRect();
-            mouseX = e.clientX - rect.left;
-            mouseY = e.clientY - rect.top;
-        });
-        
-        canvas.addEventListener('mouseup', () => {
-            if (shooting) shoot();
-        });
-        
-        function resetGame() {
-            initBalls();
-            power = 0;
-            powerBar.style.width = '0%';
-        }
-        
-        window.onload = () => {
-            initBalls();
-            gameLoop();
-        };
-    </script>
+      <!-- Status -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-green-100 p-4 rounded-xl text-center">
+          <p class="text-green-600 text-sm">Vagas Disponíveis</p>
+          <p id="disponiveis" class="text-4xl font-bold text-green-700">25</p>
+        </div>
+        <div class="bg-blue-100 p-4 rounded-xl text-center">
+          <p class="text-blue-600 text-sm">Vagas Ocupadas</p>
+          <p id="ocupadas" class="text-4xl font-bold text-blue-700">0</p>
+        </div>
+        <div class="bg-gray-100 p-4 rounded-xl text-center">
+          <p class="text-gray-600 text-sm">Total de Vagas</p>
+          <p class="text-4xl font-bold text-gray-700">25</p>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <div class="flex justify-center gap-3 mb-8">
+        <button onclick="mostrarTela(1)" class="tab-button active px-6 py-3 rounded-xl font-medium flex items-center gap-2 bg-blue-600 text-white">
+          <i class="fas fa-car"></i> Entrada
+        </button>
+        <button onclick="mostrarTela(2)" class="tab-button px-6 py-3 rounded-xl font-medium flex items-center gap-2 hover:bg-gray-100">
+          <i class="fas fa-sign-out-alt"></i> Saída
+        </button>
+        <button onclick="mostrarTela(3)" class="tab-button px-6 py-3 rounded-xl font-medium flex items-center gap-2 hover:bg-gray-100">
+          <i class="fas fa-list"></i> Veículos
+        </button>
+      </div>
+
+      <!-- Tela 1: Entrada -->
+      <div id="tela1" class="tela">
+        <div class="max-w-md mx-auto bg-gray-50 p-8 rounded-2xl">
+          <h2 class="text-2xl font-semibold mb-6 text-center">Nova Entrada de Veículo</h2>
+          
+          <input type="text" id="placa" placeholder="Placa (ex: ABC1234)" maxlength="8"
+            class="w-full p-4 border rounded-xl mb-4 text-center text-xl font-mono uppercase">
+          
+          <input type="text" id="nome" placeholder="Nome do Proprietário" 
+            class="w-full p-4 border rounded-xl mb-6">
+
+          <button onclick="entrarVeiculo()" 
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-lg font-semibold flex items-center justify-center gap-3">
+            <i class="fas fa-check"></i> Registrar Entrada
+          </button>
+        </div>
+      </div>
+
+      <!-- Tela 2: Saída -->
+      <div id="tela2" class="tela hidden">
+        <div class="max-w-md mx-auto bg-gray-50 p-8 rounded-2xl">
+          <h2 class="text-2xl font-semibold mb-6 text-center">Saída de Veículo</h2>
+          <input type="text" id="placaSaida" placeholder="Digite a placa" maxlength="8"
+            class="w-full p-4 border rounded-xl mb-6 text-center text-xl font-mono uppercase">
+          <button onclick="sairVeiculo()" 
+            class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl text-lg font-semibold">
+            Liberar Veículo
+          </button>
+        </div>
+      </div>
+
+      <!-- Tela 3: Lista de Veículos -->
+      <div id="tela3" class="tela hidden">
+        <h2 class="text-2xl font-semibold mb-4">Veículos Estacionados</h2>
+        <div id="listaVeiculos" class="space-y-3"></div>
+      </div>
+
+      <!-- Histórico -->
+      <div class="mt-10">
+        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+          <i class="fas fa-history"></i> Histórico de Saídas
+        </h2>
+        <div id="historico" class="text-sm bg-white border rounded-xl p-4 max-h-60 overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let vagas = 25;
+    let veiculos = {}; // placa -> dados
+    let historico = [];
+
+    function gerarCPF() {
+      let cpf = Array.from({length: 9}, () => Math.floor(Math.random() * 10));
+      let soma = cpf.reduce((acc, val, i) => acc + val * (10 - i), 0);
+      let dv1 = (soma * 10 % 11) % 10;
+      cpf.push(dv1);
+      soma = cpf.reduce((acc, val, i) => acc + val * (11 - i), 0);
+      let dv2 = (soma * 10 % 11) % 10;
+      cpf.push(dv2);
+      return cpf.join('');
+    }
+
+    function gerarRG() {
+      return `${Math.floor(Math.random()*90)+10}.${Math.floor(Math.random()*900)+100}.${Math.floor(Math.random()*900)+100}-${Math.floor(Math.random()*10)}`;
+    }
+
+    function atualizarStatus() {
+      document.getElementById('disponiveis').textContent = vagas - Object.keys(veiculos).length;
+      document.getElementById('ocupadas').textContent = Object.keys(veiculos).length;
+    }
+
+    function mostrarTela(n) {
+      document.querySelectorAll('.tela').forEach(t => t.classList.add('hidden'));
+      document.getElementById(`tela${n}`).classList.remove('hidden');
+      
+      if (n === 3) listarVeiculos();
+    }
+
+    function entrarVeiculo() {
+      const placa = document.getElementById('placa').value.trim().toUpperCase();
+      const nome = document.getElementById('nome').value.trim();
+
+      if (!placa || !nome) {
+        alert("Preencha placa e nome!");
+        return;
+      }
+      if (veiculos[placa]) {
+        alert("Veículo já está estacionado!");
+        return;
+      }
+      if (Object.keys(veiculos).length >= vagas) {
+        alert("Estacionamento lotado!");
+        return;
+      }
+
+      const cpf = gerarCPF();
+      const rg = gerarRG();
+
+      veiculos[placa] = {
+        nome: nome,
+        cpf: cpf,
+        rg: rg,
+        entrada: new Date().toLocaleTimeString('pt-BR')
+      };
+
+      alert(`✅ Veículo registrado!\n\nPlaca: ${placa}\nProprietário: ${nome}\nCPF: ${cpf}\nRG: ${rg}`);
+      
+      document.getElementById('placa').value = '';
+      document.getElementById('nome').value = '';
+      
+      atualizarStatus();
+      listarVeiculos();
+    }
+
+    function sairVeiculo() {
+      const placa = document.getElementById('placaSaida').value.trim().toUpperCase();
+      
+      if (!placa) {
+        alert("Digite a placa!");
+        return;
+      }
+      if (!veiculos[placa]) {
+        alert("Veículo não encontrado!");
+        return;
+      }
+
+      const v = veiculos[placa];
+      const saida = new Date().toLocaleTimeString('pt-BR');
+
+      historico.unshift({
+        placa: placa,
+        nome: v.nome,
+        entrada: v.entrada,
+        saida: saida
+      });
+
+      delete veiculos[placa];
+
+      alert(`🚗 Veículo ${placa} liberado!\nSaída: ${saida}`);
+
+      document.getElementById('placaSaida').value = '';
+      atualizarStatus();
+      listarVeiculos();
+      mostrarHistorico();
+    }
+
+    function listarVeiculos() {
+      const container = document.getElementById('listaVeiculos');
+      container.innerHTML = '';
+
+      if (Object.keys(veiculos).length === 0) {
+        container.innerHTML = '<p class="text-center text-gray-500 py-8">Nenhum veículo estacionado no momento.</p>';
+        return;
+      }
+
+      for (let [placa, info] of Object.entries(veiculos)) {
+        const div = document.createElement('div');
+        div.className = "bg-white p-5 rounded-xl border hover:shadow-md";
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-mono text-2xl font-bold">${placa}</p>
+              <p class="text-gray-700">${info.nome}</p>
+              <p class="text-sm text-gray-500">Entrada: ${info.entrada}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-gray-500">CPF</p>
+              <p class="font-mono">${info.cpf}</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function mostrarHistorico() {
+      const container = document.getElementById('historico');
+      container.innerHTML = '';
+
+      if (historico.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center">Nenhum registro de saída ainda.</p>';
+        return;
+      }
+
+      historico.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "flex justify-between py-2 border-b last:border-0";
+        div.innerHTML = `
+          <div>
+            <span class="font-mono">${item.placa}</span> - ${item.nome}
+          </div>
+          <div class="text-right text-xs text-gray-500">
+            ${item.entrada} → ${item.saida}
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Inicializar
+    atualizarStatus();
+    mostrarTela(1);
+  </script>
 </body>
 </html>
