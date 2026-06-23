@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Sinuca</title>
+    <title>Jogo de Sinuca - Mesa Verde</title>
     <style>
         body {
             margin: 0;
@@ -41,36 +41,37 @@
             bottom: -30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 300px;
-            height: 20px;
+            width: 400px;
+            height: 25px;
             background: #333;
-            border: 2px solid #fff;
-            border-radius: 10px;
+            border: 3px solid #fff;
+            border-radius: 12px;
             overflow: hidden;
         }
         #power {
             height: 100%;
             width: 0%;
-            background: linear-gradient(to right, #00ff00, #ffff00, #ff0000);
-            transition: width 0.05s;
+            background: linear-gradient(to right, #00ff00, #ffff00, #ff8800, #ff0000);
+            transition: width 0.03s;
         }
         button {
             position: absolute;
             top: 15px;
             right: 15px;
-            padding: 8px 16px;
+            padding: 10px 18px;
             background: #ff4757;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
         <canvas id="canvas" width="800" height="500"></canvas>
-        <div id="instructions">Arraste o mouse para mirar • Solte para atirar</div>
+        <div id="instructions">Clique e segure para carregar a força • Solte para tacar</div>
         <div id="power-bar"><div id="power"></div></div>
         <button onclick="resetGame()">Reiniciar Jogo</button>
     </div>
@@ -91,8 +92,9 @@
         let mouseY = 0;
         let power = 0;
         let shooting = false;
+        let maxPower = 180;
         
-        const FRICTION = 0.98;
+        const FRICTION = 0.975;
         const BALL_RADIUS = 12;
         const POCKET_RADIUS = 18;
         
@@ -104,17 +106,19 @@
             const startX = TABLE_X + TABLE_WIDTH - 220;
             const startY = TABLE_Y + TABLE_HEIGHT / 2;
             
-            // Formação triangular
-            balls.push({x: startX, y: startY, vx: 0, vy: 0, color: '#ff0000', number: 1, radius: BALL_RADIUS});
-            balls.push({x: startX + 25, y: startY - 13, vx: 0, vy: 0, color: '#ffff00', number: 2, radius: BALL_RADIUS});
-            balls.push({x: startX + 25, y: startY + 13, vx: 0, vy: 0, color: '#0000ff', number: 3, radius: BALL_RADIUS});
-            balls.push({x: startX + 50, y: startY - 26, vx: 0, vy: 0, color: '#800080', number: 4, radius: BALL_RADIUS});
-            balls.push({x: startX + 50, y: startY, vx: 0, vy: 0, color: '#ff8c00', number: 5, radius: BALL_RADIUS});
-            balls.push({x: startX + 50, y: startY + 26, vx: 0, vy: 0, color: '#008000', number: 6, radius: BALL_RADIUS});
-            balls.push({x: startX + 75, y: startY - 39, vx: 0, vy: 0, color: '#ffa500', number: 7, radius: BALL_RADIUS});
-            balls.push({x: startX + 75, y: startY - 13, vx: 0, vy: 0, color: '#ff69b4', number: 8, radius: BALL_RADIUS});
-            balls.push({x: startX + 75, y: startY + 13, vx: 0, vy: 0, color: '#00ffff', number: 9, radius: BALL_RADIUS});
-            balls.push({x: startX + 75, y: startY + 39, vx: 0, vy: 0, color: '#ffd700', number: 10, radius: BALL_RADIUS});
+            const colors = ['#ff0000','#ffff00','#0000ff','#800080','#ff8c00','#008000','#ffa500','#ff69b4','#00ffff','#ffd700'];
+            for (let i = 1; i <= 10; i++) {
+                const row = Math.floor((i-1)/4);
+                const col = (i-1)%4;
+                balls.push({
+                    x: startX + row * 28,
+                    y: startY - 20 + col * 26 + (row % 2 === 0 ? 13 : 0),
+                    vx: 0, vy: 0,
+                    color: colors[i-1],
+                    number: i,
+                    radius: BALL_RADIUS
+                });
+            }
         }
         
         let pockets = [
@@ -127,9 +131,11 @@
         ];
         
         function drawTable() {
-            ctx.fillStyle = '#0a6b3a';
+            // Fundo verde da mesa (alterado)
+            ctx.fillStyle = '#0b8c4f';        // Verde clássico de sinuca
             ctx.fillRect(TABLE_X, TABLE_Y, TABLE_WIDTH, TABLE_HEIGHT);
             
+            // Bordas de madeira
             ctx.strokeStyle = '#8B4513';
             ctx.lineWidth = 20;
             ctx.strokeRect(TABLE_X - 10, TABLE_Y - 10, TABLE_WIDTH + 20, TABLE_HEIGHT + 20);
@@ -137,6 +143,7 @@
             ctx.fillStyle = '#654321';
             ctx.fillRect(TABLE_X - 35, TABLE_Y - 35, TABLE_WIDTH + 70, TABLE_HEIGHT + 70);
             
+            // Linha central
             ctx.strokeStyle = '#ffffff';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -144,6 +151,7 @@
             ctx.lineTo(TABLE_X + 40, TABLE_Y + TABLE_HEIGHT);
             ctx.stroke();
             
+            // Caçapas
             ctx.fillStyle = '#111';
             pockets.forEach(p => {
                 ctx.beginPath();
@@ -186,15 +194,20 @@
             if (dist < 10) return;
             
             const angle = Math.atan2(dy, dx);
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 6;
-            ctx.lineCap = 'round';
-            ctx.shadowBlur = 8;
+            const forceFactor = power / maxPower;
             
-            const startX = cueBall.x + Math.cos(angle) * (BALL_RADIUS + 8);
-            const startY = cueBall.y + Math.sin(angle) * (BALL_RADIUS + 8);
-            const endX = startX - Math.cos(angle) * 180;
-            const endY = startY - Math.sin(angle) * 180;
+            ctx.strokeStyle = '#5D2E0F';
+            ctx.lineWidth = 7;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 10;
+            
+            const pullBack = 60 + forceFactor * 140;
+            
+            const startX = cueBall.x + Math.cos(angle) * (BALL_RADIUS + 10);
+            const startY = cueBall.y + Math.sin(angle) * (BALL_RADIUS + 10);
+            const endX = startX - Math.cos(angle) * pullBack;
+            const endY = startY - Math.sin(angle) * pullBack;
             
             ctx.beginPath();
             ctx.moveTo(startX, startY);
@@ -204,7 +217,7 @@
         }
         
         function isMoving() {
-            return balls.some(ball => Math.abs(ball.vx) > 0.1 || Math.abs(ball.vy) > 0.1);
+            return balls.some(ball => Math.abs(ball.vx) > 0.08 || Math.abs(ball.vy) > 0.08);
         }
         
         function updatePhysics() {
@@ -213,17 +226,16 @@
                 ball.y += ball.vy;
                 ball.vx *= FRICTION;
                 ball.vy *= FRICTION;
-                if (Math.abs(ball.vx) < 0.1) ball.vx = 0;
-                if (Math.abs(ball.vy) < 0.1) ball.vy = 0;
                 
-                // Colisão com paredes
-                if (ball.x - ball.radius < TABLE_X) { ball.x = TABLE_X + ball.radius; ball.vx = -ball.vx * 0.95; }
-                if (ball.x + ball.radius > TABLE_X + TABLE_WIDTH) { ball.x = TABLE_X + TABLE_WIDTH - ball.radius; ball.vx = -ball.vx * 0.95; }
-                if (ball.y - ball.radius < TABLE_Y) { ball.y = TABLE_Y + ball.radius; ball.vy = -ball.vy * 0.95; }
-                if (ball.y + ball.radius > TABLE_Y + TABLE_HEIGHT) { ball.y = TABLE_Y + TABLE_HEIGHT - ball.radius; ball.vy = -ball.vy * 0.95; }
+                if (Math.abs(ball.vx) < 0.08) ball.vx = 0;
+                if (Math.abs(ball.vy) < 0.08) ball.vy = 0;
+                
+                if (ball.x - ball.radius < TABLE_X) { ball.x = TABLE_X + ball.radius; ball.vx = -ball.vx * 0.92; }
+                if (ball.x + ball.radius > TABLE_X + TABLE_WIDTH) { ball.x = TABLE_X + TABLE_WIDTH - ball.radius; ball.vx = -ball.vx * 0.92; }
+                if (ball.y - ball.radius < TABLE_Y) { ball.y = TABLE_Y + ball.radius; ball.vy = -ball.vy * 0.92; }
+                if (ball.y + ball.radius > TABLE_Y + TABLE_HEIGHT) { ball.y = TABLE_Y + TABLE_HEIGHT - ball.radius; ball.vy = -ball.vy * 0.92; }
             });
             
-            // Colisão entre bolas
             for (let i = 0; i < balls.length; i++) {
                 for (let j = i + 1; j < balls.length; j++) {
                     const b1 = balls[i], b2 = balls[j];
@@ -242,15 +254,14 @@
                         b2.y += ny * overlap / 2;
                         
                         const dot = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
-                        b1.vx -= dot * nx;
-                        b1.vy -= dot * ny;
-                        b2.vx += dot * nx;
-                        b2.vy += dot * ny;
+                        b1.vx -= dot * nx * 0.95;
+                        b1.vy -= dot * ny * 0.95;
+                        b2.vx += dot * nx * 0.95;
+                        b2.vy += dot * ny * 0.95;
                     }
                 }
             }
             
-            // Bolas nas caçapas
             for (let i = balls.length - 1; i >= 0; i--) {
                 const ball = balls[i];
                 for (let p of pockets) {
@@ -282,8 +293,8 @@
             draw();
             
             if (shooting) {
-                power = Math.min(power + 3.5, 100);
-                powerBar.style.width = power + '%';
+                power = Math.min(power + 5.5, maxPower);
+                powerBar.style.width = (power / maxPower * 100) + '%';
             }
             
             requestAnimationFrame(gameLoop);
@@ -291,12 +302,14 @@
         
         function shoot() {
             if (!cueBall || isMoving()) return;
+            
             const dx = cueBall.x - mouseX;
             const dy = cueBall.y - mouseY;
             const distance = Math.sqrt(dx*dx + dy*dy);
             if (distance < 30) return;
             
-            const force = power / 12;
+            const force = power / 6.5;
+            
             cueBall.vx = (dx / distance) * force;
             cueBall.vy = (dy / distance) * force;
             
@@ -324,6 +337,8 @@
         
         function resetGame() {
             initBalls();
+            power = 0;
+            powerBar.style.width = '0%';
         }
         
         window.onload = () => {
