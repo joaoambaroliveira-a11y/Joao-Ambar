@@ -3,254 +3,253 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🅿️ Estacionamento - Controle de Veículos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <title>🅿️ Estacionamento Simulator</title>
   <style>
-    body { font-family: 'Segoe UI', sans-serif; }
-    .vaga { transition: all 0.3s; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: white;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    h1 { text-align: center; margin-bottom: 5px; }
+    .status {
+      text-align: center;
+      font-size: 1.4em;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    .veiculo-card {
+      background: rgba(255,255,255,0.12);
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border-left: 6px solid #3b82f6;
+      transition: all 0.3s;
+    }
+    .veiculo-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+    }
+    input, select, button {
+      padding: 12px;
+      margin: 5px;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover { background: #2563eb; }
+    .remover-btn {
+      background: #ef4444;
+      padding: 8px 12px;
+      font-size: 0.9em;
+    }
+    .log {
+      max-height: 280px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.4);
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 0.95em;
+    }
+    .modelo {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #a5f3fc;
+    }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-  <div class="max-w-4xl mx-auto p-6">
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-      <h1 class="text-4xl font-bold text-center mb-2 text-gray-800">
-        🅿️ Sistema de Estacionamento
-      </h1>
-      <p class="text-center text-gray-600 mb-8">Controle de Veículos - Geração de CPF/RG</p>
-
-      <!-- Status -->
-      <div class="grid grid-cols-3 gap-4 mb-8">
-        <div class="bg-green-100 p-4 rounded-xl text-center">
-          <p class="text-green-600 text-sm">Vagas Disponíveis</p>
-          <p id="disponiveis" class="text-4xl font-bold text-green-700">25</p>
-        </div>
-        <div class="bg-blue-100 p-4 rounded-xl text-center">
-          <p class="text-blue-600 text-sm">Vagas Ocupadas</p>
-          <p id="ocupadas" class="text-4xl font-bold text-blue-700">0</p>
-        </div>
-        <div class="bg-gray-100 p-4 rounded-xl text-center">
-          <p class="text-gray-600 text-sm">Total de Vagas</p>
-          <p class="text-4xl font-bold text-gray-700">25</p>
-        </div>
-      </div>
-
-      <!-- Menu -->
-      <div class="flex justify-center gap-3 mb-8">
-        <button onclick="mostrarTela(1)" class="tab-button active px-6 py-3 rounded-xl font-medium flex items-center gap-2 bg-blue-600 text-white">
-          <i class="fas fa-car"></i> Entrada
-        </button>
-        <button onclick="mostrarTela(2)" class="tab-button px-6 py-3 rounded-xl font-medium flex items-center gap-2 hover:bg-gray-100">
-          <i class="fas fa-sign-out-alt"></i> Saída
-        </button>
-        <button onclick="mostrarTela(3)" class="tab-button px-6 py-3 rounded-xl font-medium flex items-center gap-2 hover:bg-gray-100">
-          <i class="fas fa-list"></i> Veículos
-        </button>
-      </div>
-
-      <!-- Tela 1: Entrada -->
-      <div id="tela1" class="tela">
-        <div class="max-w-md mx-auto bg-gray-50 p-8 rounded-2xl">
-          <h2 class="text-2xl font-semibold mb-6 text-center">Nova Entrada de Veículo</h2>
-          
-          <input type="text" id="placa" placeholder="Placa (ex: ABC1234)" maxlength="8"
-            class="w-full p-4 border rounded-xl mb-4 text-center text-xl font-mono uppercase">
-          
-          <input type="text" id="nome" placeholder="Nome do Proprietário" 
-            class="w-full p-4 border rounded-xl mb-6">
-
-          <button onclick="entrarVeiculo()" 
-            class="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-lg font-semibold flex items-center justify-center gap-3">
-            <i class="fas fa-check"></i> Registrar Entrada
-          </button>
-        </div>
-      </div>
-
-      <!-- Tela 2: Saída -->
-      <div id="tela2" class="tela hidden">
-        <div class="max-w-md mx-auto bg-gray-50 p-8 rounded-2xl">
-          <h2 class="text-2xl font-semibold mb-6 text-center">Saída de Veículo</h2>
-          <input type="text" id="placaSaida" placeholder="Digite a placa" maxlength="8"
-            class="w-full p-4 border rounded-xl mb-6 text-center text-xl font-mono uppercase">
-          <button onclick="sairVeiculo()" 
-            class="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl text-lg font-semibold">
-            Liberar Veículo
-          </button>
-        </div>
-      </div>
-
-      <!-- Tela 3: Lista de Veículos -->
-      <div id="tela3" class="tela hidden">
-        <h2 class="text-2xl font-semibold mb-4">Veículos Estacionados</h2>
-        <div id="listaVeiculos" class="space-y-3"></div>
-      </div>
-
-      <!-- Histórico -->
-      <div class="mt-10">
-        <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-          <i class="fas fa-history"></i> Histórico de Saídas
-        </h2>
-        <div id="historico" class="text-sm bg-white border rounded-xl p-4 max-h-60 overflow-y-auto"></div>
-      </div>
+<body>
+  <div class="container">
+    <h1>🅿️ Estacionamento Simulator</h1>
+    
+    <div class="status" id="status">
+      Vagas Totais: <strong>25</strong> | 
+      Ocupadas: <strong id="ocupadas">0</strong> | 
+      Sobrando: <strong id="sobrando">25</strong>
     </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+      <select id="modeloVeiculo" style="width: 220px;">
+        <option value="">Escolha o modelo do veículo</option>
+        <option value="Volkswagen Gol">Volkswagen Gol</option>
+        <option value="Fiat Uno">Fiat Uno</option>
+        <option value="Chevrolet Onix">Chevrolet Onix</option>
+        <option value="Hyundai HB20">Hyundai HB20</option>
+        <option value="Toyota Corolla">Toyota Corolla</option>
+        <option value="Honda Civic">Honda Civic</option>
+        <option value="Toyota Hilux">Toyota Hilux</option>
+        <option value="Chevrolet S10">Chevrolet S10</option>
+        <option value="Fiat Strada">Fiat Strada</option>
+        <option value="Renault Kwid">Renault Kwid</option>
+        <option value="Jeep Compass">Jeep Compass</option>
+        <option value="Volkswagen Polo">Volkswagen Polo</option>
+        <option value="Fiat Toro">Fiat Toro</option>
+        <option value="Honda HR-V">Honda HR-V</option>
+      </select>
+      <button onclick="estacionarVeiculo()">🚗 Estacionar Veículo</button>
+    </div>
+
+    <div>
+      <input type="text" id="placaRemover" placeholder="Digite a placa para remover (ex: ABC-1234)" style="width: 320px;">
+      <button onclick="removerVeiculo()">Remover Veículo</button>
+    </div>
+
+    <h2>🚘 Veículos Estacionados</h2>
+    <div id="listaVeiculos"></div>
+
+    <div class="log" id="log"></div>
   </div>
 
   <script>
-    let vagas = 25;
-    let veiculos = {}; // placa -> dados
-    let historico = [];
+    let vagasTotais = 25;
+    let veiculos = {};
 
     function gerarCPF() {
       let cpf = Array.from({length: 9}, () => Math.floor(Math.random() * 10));
-      let soma = cpf.reduce((acc, val, i) => acc + val * (10 - i), 0);
-      let dv1 = (soma * 10 % 11) % 10;
-      cpf.push(dv1);
-      soma = cpf.reduce((acc, val, i) => acc + val * (11 - i), 0);
-      let dv2 = (soma * 10 % 11) % 10;
-      cpf.push(dv2);
+      let d1 = cpf.reduce((sum, num, i) => sum + num * (10 - i), 0) % 11;
+      d1 = d1 < 2 ? 0 : 11 - d1;
+      cpf.push(d1);
+      let d2 = cpf.reduce((sum, num, i) => sum + num * (11 - i), 0) % 11;
+      d2 = d2 < 2 ? 0 : 11 - d2;
+      cpf.push(d2);
       return cpf.join('');
     }
 
     function gerarRG() {
-      return `${Math.floor(Math.random()*90)+10}.${Math.floor(Math.random()*900)+100}.${Math.floor(Math.random()*900)+100}-${Math.floor(Math.random()*10)}`;
+      let rg = Array.from({length: 9}, () => Math.floor(Math.random() * 10)).join('');
+      return `${rg.slice(0,2)}.${rg.slice(2,5)}.${rg.slice(5,8)}-${rg[8]}`;
+    }
+
+    function gerarPlaca() {
+      const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let placa = '';
+      for (let i = 0; i < 3; i++) placa += letras[Math.floor(Math.random() * 26)];
+      placa += '-';
+      for (let i = 0; i < 4; i++) placa += Math.floor(Math.random() * 10);
+      return placa;
+    }
+
+    function adicionarLog(mensagem, tipo = 'info') {
+      const log = document.getElementById('log');
+      const hora = new Date().toLocaleTimeString('pt-BR');
+      const cor = tipo === 'sucesso' ? '#4ade80' : tipo === 'erro' ? '#f87171' : 'white';
+      log.innerHTML += `<span style="color:${cor}">[${hora}] ${mensagem}</span><br>`;
+      log.scrollTop = log.scrollHeight;
     }
 
     function atualizarStatus() {
-      document.getElementById('disponiveis').textContent = vagas - Object.keys(veiculos).length;
-      document.getElementById('ocupadas').textContent = Object.keys(veiculos).length;
+      const ocupadas = Object.keys(veiculos).length;
+      document.getElementById('ocupadas').textContent = ocupadas;
+      document.getElementById('sobrando').textContent = vagasTotais - ocupadas;
     }
 
-    function mostrarTela(n) {
-      document.querySelectorAll('.tela').forEach(t => t.classList.add('hidden'));
-      document.getElementById(`tela${n}`).classList.remove('hidden');
+    function estacionarVeiculo() {
+      const ocupadas = Object.keys(veiculos).length;
+      if (ocupadas >= vagasTotais) {
+        adicionarLog("❌ Estacionamento está lotado!", "erro");
+        return;
+      }
+
+      const select = document.getElementById('modeloVeiculo');
+      let modelo = select.value;
       
-      if (n === 3) listarVeiculos();
-    }
-
-    function entrarVeiculo() {
-      const placa = document.getElementById('placa').value.trim().toUpperCase();
-      const nome = document.getElementById('nome').value.trim();
-
-      if (!placa || !nome) {
-        alert("Preencha placa e nome!");
-        return;
-      }
-      if (veiculos[placa]) {
-        alert("Veículo já está estacionado!");
-        return;
-      }
-      if (Object.keys(veiculos).length >= vagas) {
-        alert("Estacionamento lotado!");
-        return;
+      if (!modelo) {
+        modelo = ["Volkswagen Gol", "Fiat Uno", "Chevrolet Onix", "Hyundai HB20", "Toyota Corolla"][Math.floor(Math.random()*5)];
       }
 
-      const cpf = gerarCPF();
-      const rg = gerarRG();
-
-      veiculos[placa] = {
-        nome: nome,
-        cpf: cpf,
-        rg: rg,
+      const placa = gerarPlaca();
+      const veiculo = {
+        placa: placa,
+        modelo: modelo,
+        cpf: gerarCPF(),
+        rg: gerarRG(),
         entrada: new Date().toLocaleTimeString('pt-BR')
       };
 
-      alert(`✅ Veículo registrado!\n\nPlaca: ${placa}\nProprietário: ${nome}\nCPF: ${cpf}\nRG: ${rg}`);
-      
-      document.getElementById('placa').value = '';
-      document.getElementById('nome').value = '';
-      
+      veiculos[placa] = veiculo;
       atualizarStatus();
-      listarVeiculos();
+      mostrarVeiculos();
+      adicionarLog(`✅ Veículo estacionado! <strong>${modelo}</strong> - Placa: ${placa}`, "sucesso");
+      
+      // Limpa o select após estacionar
+      select.value = '';
     }
 
-    function sairVeiculo() {
-      const placa = document.getElementById('placaSaida').value.trim().toUpperCase();
-      
-      if (!placa) {
-        alert("Digite a placa!");
-        return;
-      }
-      if (!veiculos[placa]) {
-        alert("Veículo não encontrado!");
+    function removerVeiculo() {
+      const placaInput = document.getElementById('placaRemover').value.trim().toUpperCase();
+      if (!placaInput) {
+        adicionarLog("⚠️ Por favor, digite uma placa!", "erro");
         return;
       }
 
-      const v = veiculos[placa];
-      const saida = new Date().toLocaleTimeString('pt-BR');
-
-      historico.unshift({
-        placa: placa,
-        nome: v.nome,
-        entrada: v.entrada,
-        saida: saida
-      });
-
-      delete veiculos[placa];
-
-      alert(`🚗 Veículo ${placa} liberado!\nSaída: ${saida}`);
-
-      document.getElementById('placaSaida').value = '';
-      atualizarStatus();
-      listarVeiculos();
-      mostrarHistorico();
+      if (veiculos[placaInput]) {
+        const v = veiculos[placaInput];
+        delete veiculos[placaInput];
+        atualizarStatus();
+        mostrarVeiculos();
+        adicionarLog(`🚪 Veículo removido: ${v.modelo} - ${placaInput}`, "sucesso");
+        document.getElementById('placaRemover').value = '';
+      } else {
+        adicionarLog(`❌ Veículo com placa ${placaInput} não encontrado!`, "erro");
+      }
     }
 
-    function listarVeiculos() {
-      const container = document.getElementById('listaVeiculos');
-      container.innerHTML = '';
+    function mostrarVeiculos() {
+      const lista = document.getElementById('listaVeiculos');
+      lista.innerHTML = '';
 
       if (Object.keys(veiculos).length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-500 py-8">Nenhum veículo estacionado no momento.</p>';
+        lista.innerHTML = '<p style="text-align:center; color:#aaa; font-style:italic;">Nenhum veículo estacionado no momento.</p>';
         return;
       }
 
-      for (let [placa, info] of Object.entries(veiculos)) {
-        const div = document.createElement('div');
-        div.className = "bg-white p-5 rounded-xl border hover:shadow-md";
-        div.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="font-mono text-2xl font-bold">${placa}</p>
-              <p class="text-gray-700">${info.nome}</p>
-              <p class="text-sm text-gray-500">Entrada: ${info.entrada}</p>
-            </div>
-            <div class="text-right">
-              <p class="text-xs text-gray-500">CPF</p>
-              <p class="font-mono">${info.cpf}</p>
-            </div>
-          </div>
+      for (let placa in veiculos) {
+        const v = veiculos[placa];
+        const card = document.createElement('div');
+        card.className = 'veiculo-card';
+        card.innerHTML = `
+          <strong style="font-size:1.2em;">${v.placa}</strong> 
+          <span class="modelo">${v.modelo}</span><br><br>
+          <strong>CPF:</strong> ${v.cpf} | 
+          <strong>RG:</strong> ${v.rg}<br>
+          <strong>Entrada:</strong> ${v.entrada}
+          <button class="remover-btn" onclick="removerPorPlaca('${placa}')" style="float:right;">Remover</button>
         `;
-        container.appendChild(div);
+        lista.appendChild(card);
       }
     }
 
-    function mostrarHistorico() {
-      const container = document.getElementById('historico');
-      container.innerHTML = '';
-
-      if (historico.length === 0) {
-        container.innerHTML = '<p class="text-gray-500 text-center">Nenhum registro de saída ainda.</p>';
-        return;
+    function removerPorPlaca(placa) {
+      if (veiculos[placa]) {
+        const modelo = veiculos[placa].modelo;
+        delete veiculos[placa];
+        atualizarStatus();
+        mostrarVeiculos();
+        adicionarLog(`🚪 Removido: ${modelo} - ${placa}`, "sucesso");
       }
-
-      historico.forEach(item => {
-        const div = document.createElement('div');
-        div.className = "flex justify-between py-2 border-b last:border-0";
-        div.innerHTML = `
-          <div>
-            <span class="font-mono">${item.placa}</span> - ${item.nome}
-          </div>
-          <div class="text-right text-xs text-gray-500">
-            ${item.entrada} → ${item.saida}
-          </div>
-        `;
-        container.appendChild(div);
-      });
     }
 
-    // Inicializar
+    // Inicialização
     atualizarStatus();
-    mostrarTela(1);
+    mostrarVeiculos();
+    adicionarLog("🚀 Bem-vindo ao Estacionamento Simulator! Escolha um modelo e estacione.", "sucesso");
   </script>
 </body>
 </html>
