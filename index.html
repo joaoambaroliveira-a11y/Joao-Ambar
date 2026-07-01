@@ -34,7 +34,6 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Formulário de Dados do Veículo */
     .form-veiculo {
       background: rgba(0,0,0,0.4);
       padding: 30px;
@@ -49,7 +48,6 @@
       background: #1e2937;
       color: white;
       border: 1px solid #60a5fa;
-      font-size: 1.1em;
     }
 
     button.big-btn {
@@ -63,56 +61,21 @@
       cursor: pointer;
       font-weight: bold;
       box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-      margin-top: 15px;
     }
 
-    /* Modal de Pagamento */
-    .modal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.95);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-    }
-    .modal-content {
-      background: #1e2937;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      border: 3px solid #60a5fa;
-      max-width: 520px;
-      box-shadow: 0 0 50px rgba(59, 130, 246, 0.7);
-    }
-    .modal-content h2 {
-      color: #60a5fa;
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-    .payment-option {
-      width: 100%;
-      padding: 20px;
-      margin: 12px 0;
-      font-size: 1.4em;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .payment-option:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(255,255,255,0.3);
-    }
-
-    .ticket {
+    .ticket, .comprovante {
       background: #fff;
       color: #000;
       padding: 25px;
       border: 4px dashed #1e40af;
       border-radius: 12px;
       margin: 15px 0;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .comprovante {
+      border-style: solid;
+      border-color: #22c55e;
     }
   </style>
 </head>
@@ -130,17 +93,17 @@
   </div>
 
   <!-- MODAL DE PAGAMENTO -->
-  <div id="paymentModal" class="modal">
-    <div class="modal-content">
-      <h2>💰 PAGAMENTO OBRIGATÓRIO</h2>
-      <p id="modalVeiculoInfo" style="margin:20px 0;font-size:1.3em;"></p>
+  <div id="paymentModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:2000;">
+    <div style="background:#1e2937;padding:40px;border-radius:20px;text-align:center;border:3px solid #60a5fa;max-width:500px;">
+      <h2 style="color:#60a5fa;">💰 PAGAMENTO OBRIGATÓRIO</h2>
+      <p id="modalVeiculoInfo" style="margin:20px 0;font-size:1.2em;"></p>
       
-      <button class="payment-option" style="background:#22c55e;color:white;" onclick="confirmarPagamento('Dinheiro')">💵 DINHEIRO</button>
-      <button class="payment-option" style="background:#3b82f6;color:white;" onclick="confirmarPagamento('Débito')">💳 DÉBITO</button>
-      <button class="payment-option" style="background:#8b5cf6;color:white;" onclick="confirmarPagamento('Crédito')">💳 CRÉDITO</button>
-      <button class="payment-option" style="background:#06b67f;color:white;" onclick="confirmarPagamento('PIX')">📱 PIX</button>
+      <button onclick="confirmarPagamento('Dinheiro')" style="width:100%;padding:18px;margin:10px 0;background:#22c55e;color:white;border:none;border-radius:10px;font-size:1.2em;">💵 DINHEIRO</button>
+      <button onclick="confirmarPagamento('Débito')" style="width:100%;padding:18px;margin:10px 0;background:#3b82f6;color:white;border:none;border-radius:10px;font-size:1.2em;">💳 DÉBITO</button>
+      <button onclick="confirmarPagamento('Crédito')" style="width:100%;padding:18px;margin:10px 0;background:#8b5cf6;color:white;border:none;border-radius:10px;font-size:1.2em;">💳 CRÉDITO</button>
+      <button onclick="confirmarPagamento('PIX')" style="width:100%;padding:18px;margin:10px 0;background:#06b67f;color:white;border:none;border-radius:10px;font-size:1.2em;">📱 PIX</button>
       
-      <button onclick="fecharModal()" style="margin-top:25px;background:#ef4444;color:white;padding:14px 40px;border:none;border-radius:10px;font-size:1.1em;">Cancelar Pagamento</button>
+      <button onclick="fecharModal()" style="margin-top:20px;background:#ef4444;color:white;padding:12px 40px;border:none;border-radius:8px;">Cancelar</button>
     </div>
   </div>
 
@@ -158,10 +121,9 @@
           <option value="Hyundai HB20">Hyundai HB20</option>
           <option value="Toyota Corolla">Toyota Corolla</option>
           <option value="Honda Civic">Honda Civic</option>
-          <option value="Toyota Hilux">Toyota Hilux</option>
         </select>
-        <input type="text" id="placaInput" placeholder="Placa do Veículo (opcional)" style="text-transform:uppercase;">
-        
+        <input type="text" id="placaInput" placeholder="Placa (opcional)" style="text-transform:uppercase;">
+
         <button onclick="estacionarVeiculo()" class="big-btn">
           🚗 ESTACIONAR + GERAR TICKET
         </button>
@@ -247,13 +209,33 @@
       veiculo.saida = formatarHora();
       const valor = calcularValor(veiculo.entrada);
 
-      mostrarTicket(veiculo, "SAIDA");
+      // Mostra o comprovante
+      mostrarComprovante(veiculo, forma, valor);
 
       delete veiculos[veiculoParaPagar];
       delete vagaOcupada[veiculo.vaga];
 
       fecharModal();
-      alert(`✅ Pagamento de R$ ${valor} realizado com ${forma}!`);
+    }
+
+    function mostrarComprovante(veiculo, forma, valor) {
+      const comprovanteHTML = `
+        <div class="ticket" style="border-color:#22c55e;">
+          <h2 style="text-align:center;color:#166534;">✅ COMPROVANTE DE PAGAMENTO</h2>
+          <hr>
+          <p><strong>Vaga:</strong> ${veiculo.vaga}</p>
+          <p><strong>Placa:</strong> ${veiculo.placa}</p>
+          <p><strong>Cliente:</strong> ${veiculo.nome}</p>
+          <p><strong>Modelo:</strong> ${veiculo.modelo}</p>
+          <p><strong>Saída:</strong> ${veiculo.saida}</p>
+          <h3 style="color:#166534;text-align:center;">Valor Pago: R$ ${valor}</h3>
+          <p><strong>Forma de Pagamento:</strong> ${forma}</p>
+          <small style="display:block;text-align:center;margin-top:15px;color:#166534;">Obrigado pela preferência! Volte sempre.</small>
+        </div>`;
+
+      const div = document.createElement('div');
+      div.innerHTML = comprovanteHTML;
+      document.getElementById('listaVeiculos').prepend(div);
     }
 
     function fecharModal() {
@@ -292,7 +274,6 @@
 
       mostrarTicket(veiculo, "ENTRADA");
 
-      // Limpar
       document.getElementById('nomePessoa').value = '';
       document.getElementById('placaInput').value = '';
       document.getElementById('modeloVeiculo').value = '';
