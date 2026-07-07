@@ -10,61 +10,12 @@
       background: #0a0a0a;
       color: #e0f2fe;
       margin: 0;
-      padding: 0;
+      padding: 20px;
       min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.18) 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.18) 0%, transparent 60%);
     }
-
-    /* Tela de Login */
-    #loginScreen {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .login-box {
-      background: rgba(15, 23, 42, 0.95);
-      padding: 60px 50px;
-      border-radius: 24px;
-      width: 420px;
-      text-align: center;
-      border: 2px solid #60a5fa;
-      box-shadow: 0 0 60px rgba(59, 130, 246, 0.6);
-    }
-    .login-box h1 {
-      font-size: 4.5em;
-      margin: 0 0 10px 0;
-    }
-    .login-box h2 {
-      color: #bae6fd;
-      margin-bottom: 30px;
-    }
-    input {
-      width: 100%;
-      padding: 16px;
-      margin: 12px 0;
-      border-radius: 12px;
-      background: #1e2937;
-      color: white;
-      border: 2px solid #60a5fa;
-      font-size: 1.1em;
-    }
-    button {
-      width: 100%;
-      padding: 18px;
-      background: linear-gradient(90deg, #3b82f6, #60a5fa);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.4em;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    /* Sistema Principal */
     .container {
       max-width: 1100px;
       margin: 0 auto;
@@ -74,49 +25,233 @@
       box-shadow: 0 0 50px rgba(59, 130, 246, 0.4);
       border: 1px solid rgba(59, 130, 246, 0.3);
     }
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      margin: 0;
+      background: linear-gradient(90deg, #60a5fa, #3b82f6, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tabs {
+      display: flex;
+      background: rgba(0,0,0,0.5);
+      padding: 8px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+    }
+    .tab {
+      flex: 1;
+      padding: 16px;
+      text-align: center;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .tab.active {
+      background: #3b82f6;
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    }
+
+    input, select {
+      width: 100%;
+      padding: 15px;
+      margin: 12px 0;
+      border-radius: 12px;
+      background: #1e2937;
+      color: white;
+      border: 2px solid #60a5fa;
+    }
+
+    button.big-btn {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.5em;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+    }
+
+    .ticket {
+      background: #fff;
+      color: #000;
+      padding: 25px;
+      border: 4px dashed #1e40af;
+      border-radius: 12px;
+      margin: 15px 0;
+    }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
+  <!-- LOGIN -->
   <div id="loginScreen">
-    <div class="login-box">
-      <h1>🅿️</h1>
-      <h2>Estacionamento Simulator</h2>
-      <p style="color:#94a3b8;margin-bottom:30px;">Acesso ao Sistema</p>
-      
-      <input type="text" id="username" value="admin" placeholder="Usuário"><br>
-      <input type="password" id="password" value="1234" placeholder="Senha"><br>
-      
-      <button onclick="fazerLogin()">ENTRAR NO ESTACIONAMENTO</button>
-    </div>
-  </div>
-
-  <!-- SISTEMA DO ESTACIONAMENTO -->
-  <div id="mainContent" style="display:none;">
-    <div class="container">
-      <h1>🅿️ ESTACIONAMENTO</h1>
-      <p style="text-align:center;color:#60a5fa;">Bem-vindo ao sistema!</p>
-
-      <!-- Aqui você pode colocar o resto do sistema (entrada de veículos, tickets, etc.) -->
-      <div style="text-align:center; margin:50px 0; padding:40px; background:rgba(0,0,0,0.4); border-radius:15px;">
-        <h2>Sistema carregado com sucesso!</h2>
-        <p>Agora você pode continuar adicionando as funcionalidades de veículos e tickets.</p>
+    <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.98);display:flex;align-items:center;justify-content:center;z-index:1000;">
+      <div style="background:rgba(15,23,42,0.95);padding:50px;border-radius:20px;width:420px;text-align:center;border:2px solid #60a5fa;">
+        <h1 style="font-size:4em;margin:0;">🅿️</h1>
+        <h2 style="color:#60a5fa;">Estacionamento Simulator</h2>
+        <button onclick="fazerLogin()" style="width:100%;padding:16px;font-size:1.2em;background:#3b82f6;color:white;border:none;border-radius:12px;margin-top:20px;">ENTRAR NO SISTEMA</button>
       </div>
     </div>
   </div>
 
-  <script>
-    function fazerLogin() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
+  <div id="mainContent" style="display:none;">
+    <div class="container">
+      <h1>🅿️ ESTACIONAMENTO</h1>
 
-      if (username === "admin" && password === "1234") {
-        document.getElementById('loginScreen').style.display = "none";
-        document.getElementById('mainContent').style.display = "block";
-      } else {
-        alert("❌ Usuário ou senha incorretos!\n\nTente:\nUsuário: admin\nSenha: 1234");
+      <div class="tabs">
+        <div class="tab active" onclick="showTab(0)">📋 Cadastro de Cliente</div>
+        <div class="tab" onclick="showTab(1)">🚗 Entrada na Garagem</div>
+      </div>
+
+      <!-- ABA CADASTRO DE CLIENTE -->
+      <div id="tab0">
+        <div style="background:rgba(0,0,0,0.4);padding:30px;border-radius:15px;">
+          <h3>📋 Cadastro de Cliente</h3>
+          <input type="text" id="cadNome" placeholder="Nome Completo do Cliente">
+          <select id="cadModelo">
+            <option value="">Modelo do Carro</option>
+            <option value="Volkswagen Gol">Volkswagen Gol</option>
+            <option value="Chevrolet Onix">Chevrolet Onix</option>
+            <option value="Hyundai HB20">Hyundai HB20</option>
+            <option value="Toyota Corolla">Toyota Corolla</option>
+            <option value="Honda Civic">Honda Civic</option>
+            <option value="Toyota Hilux">Toyota Hilux</option>
+          </select>
+          <input type="text" id="cadPlaca" placeholder="Placa do Veículo (opcional)" style="text-transform:uppercase;">
+
+          <button onclick="cadastrarCliente()" class="big-btn" style="background:#22c55e;">
+            ✅ Cadastrar Cliente
+          </button>
+        </div>
+      </div>
+
+      <!-- ABA ENTRADA NA GARAGEM -->
+      <div id="tab1" style="display:none;">
+        <div style="background:rgba(0,0,0,0.4);padding:30px;border-radius:15px;">
+          <h3>🚗 Entrada na Garagem</h3>
+          <input type="text" id="nomePessoa" placeholder="Nome do Cliente">
+          <select id="modeloVeiculo">
+            <option value="">Modelo do Carro</option>
+            <option value="Volkswagen Gol">Volkswagen Gol</option>
+            <option value="Chevrolet Onix">Chevrolet Onix</option>
+            <option value="Hyundai HB20">Hyundai HB20</option>
+            <option value="Toyota Corolla">Toyota Corolla</option>
+            <option value="Honda Civic">Honda Civic</option>
+          </select>
+          <input type="text" id="placaInput" placeholder="Placa (opcional)" style="text-transform:uppercase;">
+
+          <button onclick="estacionarVeiculo()" class="big-btn">
+            🚗 ESTACIONAR + GERAR TICKET
+          </button>
+        </div>
+      </div>
+
+      <h2 style="margin-top:30px;">🎟️ Tickets Gerados</h2>
+      <div id="listaVeiculos"></div>
+    </div>
+  </div>
+
+  <script>
+    let veiculos = {};
+    let vagaOcupada = {};
+    const vagasTotais = 30;
+
+    function fazerLogin() {
+      document.getElementById('loginScreen').style.display = "none";
+      document.getElementById('mainContent').style.display = "block";
+    }
+
+    function showTab(n) {
+      document.getElementById('tab0').style.display = n === 0 ? 'block' : 'none';
+      document.getElementById('tab1').style.display = n === 1 ? 'block' : 'none';
+      document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === n));
+    }
+
+    function formatarHora() {
+      return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function gerarPlaca() {
+      const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let placa = '';
+      for (let i = 0; i < 3; i++) placa += letras[Math.floor(Math.random() * 26)];
+      placa += '-' + String(Math.floor(Math.random() * 9000) + 1000);
+      return placa;
+    }
+
+    function cadastrarCliente() {
+      const nome = document.getElementById('cadNome').value.trim();
+      const modelo = document.getElementById('cadModelo').value;
+      const placa = document.getElementById('cadPlaca').value.trim().toUpperCase();
+
+      if (!nome || !modelo) {
+        alert("⚠️ Nome e Modelo são obrigatórios!");
+        return;
       }
+
+      alert(`✅ Cliente cadastrado!\nNome: ${nome}\nModelo: ${modelo}\nPlaca: ${placa || 'Não informada'}`);
+
+      // Limpa os campos
+      document.getElementById('cadNome').value = '';
+      document.getElementById('cadModelo').value = '';
+      document.getElementById('cadPlaca').value = '';
+    }
+
+    function estacionarVeiculo() {
+      const nome = document.getElementById('nomePessoa').value.trim();
+      const modelo = document.getElementById('modeloVeiculo').value;
+
+      if (!nome || !modelo) {
+        alert("⚠️ Nome do cliente e Modelo do carro são obrigatórios!");
+        return;
+      }
+
+      let vaga = null;
+      for (let i = 1; i <= vagasTotais; i++) {
+        if (!vagaOcupada[i]) {
+          vaga = i;
+          break;
+        }
+      }
+
+      const placa = document.getElementById('placaInput').value.trim().toUpperCase() || gerarPlaca();
+
+      const veiculo = {
+        placa: placa,
+        vaga: vaga,
+        nome: nome,
+        modelo: modelo,
+        entrada: formatarHora()
+      };
+
+      veiculos[placa] = veiculo;
+      vagaOcupada[vaga] = placa;
+
+      const ticketHTML = `
+        <div class="ticket">
+          <h2 style="text-align:center;color:#1e40af;">🎟️ TICKET DE ENTRADA</h2>
+          <hr>
+          <p><strong>Vaga:</strong> ${vaga}</p>
+          <p><strong>Placa:</strong> ${placa}</p>
+          <p><strong>Cliente:</strong> ${nome}</p>
+          <p><strong>Modelo:</strong> ${modelo}</p>
+          <p><strong>Entrada:</strong> ${veiculo.entrada}</p>
+        </div>`;
+
+      const div = document.createElement('div');
+      div.innerHTML = ticketHTML;
+      document.getElementById('listaVeiculos').prepend(div);
+
+      // Limpar
+      document.getElementById('nomePessoa').value = '';
+      document.getElementById('placaInput').value = '';
+      document.getElementById('modeloVeiculo').value = '';
     }
   </script>
 </body>
