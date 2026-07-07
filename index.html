@@ -34,48 +34,56 @@
       -webkit-text-fill-color: transparent;
     }
 
-    .form-veiculo {
-      background: rgba(0,0,0,0.4);
-      padding: 30px;
-      border-radius: 15px;
-      margin: 20px 0;
+    .entrada-garagem {
+      background: rgba(0,0,0,0.5);
+      padding: 35px;
+      border-radius: 18px;
+      margin: 25px 0;
+      border: 2px solid #60a5fa;
     }
-    .form-veiculo input, .form-veiculo select {
+
+    .entrada-garagem h3 {
+      color: #60a5fa;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    input, select {
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       margin: 12px 0;
-      border-radius: 10px;
+      border-radius: 12px;
       background: #1e2937;
       color: white;
-      border: 1px solid #60a5fa;
+      border: 2px solid #60a5fa;
+      font-size: 1.1em;
     }
 
     button.big-btn {
       width: 100%;
-      padding: 20px;
-      font-size: 1.5em;
+      padding: 22px;
+      font-size: 1.6em;
       background: linear-gradient(90deg, #3b82f6, #60a5fa);
       color: white;
       border: none;
       border-radius: 12px;
       cursor: pointer;
       font-weight: bold;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+      box-shadow: 0 0 35px rgba(59, 130, 246, 0.6);
+      margin-top: 20px;
+    }
+    button.big-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 45px rgba(59, 130, 246, 0.9);
     }
 
-    .ticket, .comprovante {
+    .ticket {
       background: #fff;
       color: #000;
       padding: 25px;
       border: 4px dashed #1e40af;
       border-radius: 12px;
       margin: 15px 0;
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-
-    .comprovante {
-      border-style: solid;
-      border-color: #22c55e;
     }
   </style>
 </head>
@@ -85,25 +93,10 @@
   <div id="loginScreen">
     <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(10,10,10,0.98);display:flex;align-items:center;justify-content:center;z-index:1000;">
       <div style="background:rgba(15,23,42,0.95);padding:50px;border-radius:20px;width:400px;text-align:center;border:2px solid #60a5fa;">
-        <h1 style="font-size:3em;margin:0;">🅿️</h1>
+        <h1 style="font-size:3.5em;margin:0;">🅿️</h1>
         <h2 style="color:#60a5fa;">Estacionamento Simulator</h2>
         <button onclick="fazerLogin()" style="width:100%;padding:16px;font-size:1.2em;background:#3b82f6;color:white;border:none;border-radius:12px;margin-top:20px;">ENTRAR NO SISTEMA</button>
       </div>
-    </div>
-  </div>
-
-  <!-- MODAL DE PAGAMENTO -->
-  <div id="paymentModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:none;align-items:center;justify-content:center;z-index:2000;">
-    <div style="background:#1e2937;padding:40px;border-radius:20px;text-align:center;border:3px solid #60a5fa;max-width:500px;">
-      <h2 style="color:#60a5fa;">💰 PAGAMENTO OBRIGATÓRIO</h2>
-      <p id="modalVeiculoInfo" style="margin:20px 0;font-size:1.2em;"></p>
-      
-      <button onclick="confirmarPagamento('Dinheiro')" style="width:100%;padding:18px;margin:10px 0;background:#22c55e;color:white;border:none;border-radius:10px;font-size:1.2em;">💵 DINHEIRO</button>
-      <button onclick="confirmarPagamento('Débito')" style="width:100%;padding:18px;margin:10px 0;background:#3b82f6;color:white;border:none;border-radius:10px;font-size:1.2em;">💳 DÉBITO</button>
-      <button onclick="confirmarPagamento('Crédito')" style="width:100%;padding:18px;margin:10px 0;background:#8b5cf6;color:white;border:none;border-radius:10px;font-size:1.2em;">💳 CRÉDITO</button>
-      <button onclick="confirmarPagamento('PIX')" style="width:100%;padding:18px;margin:10px 0;background:#06b67f;color:white;border:none;border-radius:10px;font-size:1.2em;">📱 PIX</button>
-      
-      <button onclick="fecharModal()" style="margin-top:20px;background:#ef4444;color:white;padding:12px 40px;border:none;border-radius:8px;">Cancelar</button>
     </div>
   </div>
 
@@ -111,21 +104,39 @@
     <div class="container">
       <h1>🅿️ ESTACIONAMENTO</h1>
 
-      <div class="form-veiculo">
-        <h3>🚗 Dados do Veículo</h3>
-        <input type="text" id="nomePessoa" placeholder="Nome do Cliente">
-        <select id="modeloVeiculo">
-          <option value="">Modelo do Carro</option>
-          <option value="Volkswagen Gol">Volkswagen Gol</option>
-          <option value="Chevrolet Onix">Chevrolet Onix</option>
-          <option value="Hyundai HB20">Hyundai HB20</option>
-          <option value="Toyota Corolla">Toyota Corolla</option>
-          <option value="Honda Civic">Honda Civic</option>
+      <!-- ENTRADA NA GARAGEM MELHORADA -->
+      <div class="entrada-garagem">
+        <h3>🚪 ENTRADA NA GARAGEM</h3>
+        
+        <input type="text" id="nomePessoa" placeholder="Nome completo do Cliente">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <select id="modeloVeiculo">
+            <option value="">Modelo do Carro</option>
+            <option value="Volkswagen Gol">Volkswagen Gol</option>
+            <option value="Chevrolet Onix">Chevrolet Onix</option>
+            <option value="Hyundai HB20">Hyundai HB20</option>
+            <option value="Toyota Corolla">Toyota Corolla</option>
+            <option value="Honda Civic">Honda Civic</option>
+            <option value="Toyota Hilux">Toyota Hilux</option>
+            <option value="Fiat Strada">Fiat Strada</option>
+          </select>
+          
+          <input type="text" id="placaInput" placeholder="Placa (ex: ABC-1234)" style="text-transform:uppercase;">
+        </div>
+
+        <select id="corVeiculo">
+          <option value="">Cor do Veículo</option>
+          <option value="Branco">Branco</option>
+          <option value="Preto">Preto</option>
+          <option value="Prata">Prata</option>
+          <option value="Vermelho">Vermelho</option>
+          <option value="Azul">Azul</option>
+          <option value="Cinza">Cinza</option>
         </select>
-        <input type="text" id="placaInput" placeholder="Placa (opcional)" style="text-transform:uppercase;">
 
         <button onclick="estacionarVeiculo()" class="big-btn">
-          🚗 ESTACIONAR + GERAR TICKET
+          🚗 CONFIRMAR ENTRADA NA GARAGEM
         </button>
       </div>
 
@@ -137,7 +148,6 @@
   <script>
     let veiculos = {};
     let vagaOcupada = {};
-    let veiculoParaPagar = null;
     const vagasTotais = 30;
 
     function fazerLogin() {
@@ -157,97 +167,35 @@
       return placa;
     }
 
-    function calcularValor(entrada) {
-      const agora = new Date();
-      const [h, m] = entrada.split(':').map(Number);
-      const entradaDate = new Date();
-      entradaDate.setHours(h, m);
-      let horas = (agora - entradaDate) / (1000 * 60 * 60);
-      if (horas <= 1) return 12;
-      if (horas <= 2) return 20;
-      if (horas > 7) return 50;
-      return 35;
-    }
-
-    function mostrarTicket(veiculo, tipo = "ENTRADA") {
-      let html = `
+    function mostrarTicket(veiculo) {
+      const html = `
         <div class="ticket">
-          <h2 style="text-align:center;color:#1e40af;">🎟️ TICKET DE ${tipo}</h2>
+          <h2 style="text-align:center;color:#1e40af;">🎟️ TICKET DE ENTRADA</h2>
           <hr>
           <p><strong>Vaga:</strong> ${veiculo.vaga}</p>
           <p><strong>Placa:</strong> ${veiculo.placa}</p>
           <p><strong>Cliente:</strong> ${veiculo.nome}</p>
           <p><strong>Modelo:</strong> ${veiculo.modelo}</p>
-          <p><strong>${tipo}:</strong> ${tipo === "ENTRADA" ? veiculo.entrada : veiculo.saida || '—'}</p>
-      `;
-
-      if (tipo === "ENTRADA") {
-        html += `<button onclick="abrirModalPagamento('${veiculo.placa}')" style="margin-top:15px;padding:14px 30px;background:#22c55e;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Sair + Pagar</button>`;
-      }
-
-      html += `</div>`;
+          <p><strong>Cor:</strong> ${veiculo.cor}</p>
+          <p><strong>Entrada:</strong> ${veiculo.entrada}</p>
+        </div>`;
 
       const div = document.createElement('div');
       div.innerHTML = html;
       document.getElementById('listaVeiculos').prepend(div);
     }
 
-    function abrirModalPagamento(placa) {
-      veiculoParaPagar = placa;
-      const v = veiculos[placa];
-      document.getElementById('modalVeiculoInfo').innerHTML = `
-        <strong>Vaga ${v.vaga} — ${v.placa}</strong><br>
-        ${v.nome} • ${v.modelo}
-      `;
-      document.getElementById('paymentModal').style.display = "flex";
-    }
-
-    function confirmarPagamento(forma) {
-      const veiculo = veiculos[veiculoParaPagar];
-      if (!veiculo) return;
-
-      veiculo.saida = formatarHora();
-      const valor = calcularValor(veiculo.entrada);
-
-      // Mostra o comprovante
-      mostrarComprovante(veiculo, forma, valor);
-
-      delete veiculos[veiculoParaPagar];
-      delete vagaOcupada[veiculo.vaga];
-
-      fecharModal();
-    }
-
-    function mostrarComprovante(veiculo, forma, valor) {
-      const comprovanteHTML = `
-        <div class="ticket" style="border-color:#22c55e;">
-          <h2 style="text-align:center;color:#166534;">✅ COMPROVANTE DE PAGAMENTO</h2>
-          <hr>
-          <p><strong>Vaga:</strong> ${veiculo.vaga}</p>
-          <p><strong>Placa:</strong> ${veiculo.placa}</p>
-          <p><strong>Cliente:</strong> ${veiculo.nome}</p>
-          <p><strong>Modelo:</strong> ${veiculo.modelo}</p>
-          <p><strong>Saída:</strong> ${veiculo.saida}</p>
-          <h3 style="color:#166534;text-align:center;">Valor Pago: R$ ${valor}</h3>
-          <p><strong>Forma de Pagamento:</strong> ${forma}</p>
-          <small style="display:block;text-align:center;margin-top:15px;color:#166534;">Obrigado pela preferência! Volte sempre.</small>
-        </div>`;
-
-      const div = document.createElement('div');
-      div.innerHTML = comprovanteHTML;
-      document.getElementById('listaVeiculos').prepend(div);
-    }
-
-    function fecharModal() {
-      document.getElementById('paymentModal').style.display = "none";
-    }
-
     function estacionarVeiculo() {
       const nome = document.getElementById('nomePessoa').value.trim();
       const modelo = document.getElementById('modeloVeiculo').value;
+      const cor = document.getElementById('corVeiculo').value;
 
-      if (!nome || !modelo) {
-        alert("⚠️ Nome do cliente e Modelo do carro são obrigatórios!");
+      if (!nome) {
+        alert("⚠️ Por favor, digite o nome do cliente!");
+        return;
+      }
+      if (!modelo) {
+        alert("⚠️ Por favor, selecione o modelo do carro!");
         return;
       }
 
@@ -266,17 +214,22 @@
         vaga: vaga,
         nome: nome,
         modelo: modelo,
+        cor: cor || "Não informada",
         entrada: formatarHora()
       };
 
       veiculos[placa] = veiculo;
       vagaOcupada[vaga] = placa;
 
-      mostrarTicket(veiculo, "ENTRADA");
+      mostrarTicket(veiculo);
 
+      // Limpar campos
       document.getElementById('nomePessoa').value = '';
       document.getElementById('placaInput').value = '';
       document.getElementById('modeloVeiculo').value = '';
+      document.getElementById('corVeiculo').value = '';
+
+      alert(`✅ Entrada confirmada!\nCliente: ${nome}\nVaga: ${vaga}`);
     }
   </script>
 </body>
