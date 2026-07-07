@@ -1,224 +1,78 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corrida de Carro</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #111;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-        canvas {
-            border: 5px solid #fff;
-            box-shadow: 0 0 20px rgba(255, 100, 0, 0.6);
-            image-rendering: crisp-edges;
-        }
-        h1 { margin: 10px 0 5px 0; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Jogo de Carro</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { background: #333; display: block; margin: auto; }
+  </style>
 </head>
 <body>
-    <h1>🏎️ CORRIDA DE CARRO 🏎️</h1>
-    <p>Use ← → ou toque nas laterais da tela</p>
-    <canvas id="canvas" width="400" height="600"></canvas>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-    <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        let carX = 175;
-        const carY = 460;
-        let score = 0;
-        let speed = 6;
-        let gameOver = false;
-        let started = false;
+    let car = { x: 180, y: 500, width: 40, height: 80, color: "blue" };
+    let obstacles = [];
+    let gameOver = false;
 
-        let roadY = 0;
-        let obstacles = [];
-        let coins = [];
-        let frame = 0;
+    function drawCar() {
+      ctx.fillStyle = car.color;
+      ctx.fillRect(car.x, car.y, car.width, car.height);
+    }
 
-        let left = false, right = false;
+    function drawObstacles() {
+      ctx.fillStyle = "red";
+      obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.width, o.height));
+    }
 
-        function drawRoad() {
-            ctx.fillStyle = "#222";
-            ctx.fillRect(0, 0, 400, 600);
-            
-            ctx.fillStyle = "#444";
-            ctx.fillRect(70, 0, 260, 600);
-
-            // Linhas centrais
-            ctx.strokeStyle = "white";
-            ctx.lineWidth = 6;
-            for (let i = -100; i < 700; i += 70) {
-                let y = (roadY + i) % 700;
-                ctx.beginPath();
-                ctx.moveTo(195, y);
-                ctx.lineTo(195, y + 45);
-                ctx.stroke();
-            }
-        }
-
-        function drawCar() {
-            ctx.fillStyle = "#e74c3c";
-            ctx.fillRect(carX, carY, 50, 85);
-            ctx.fillStyle = "#3498db";
-            ctx.fillRect(carX + 8, carY + 15, 34, 35);
-            ctx.fillStyle = "#2c3e50";
-            ctx.fillRect(carX - 5, carY + 20, 12, 18);
-            ctx.fillRect(carX + 43, carY + 20, 12, 18);
-            ctx.fillRect(carX - 5, carY + 55, 12, 18);
-            ctx.fillRect(carX + 43, carY + 55, 12, 18);
-        }
-
-        function spawnObstacle() {
-            let x = 90 + Math.random() * 210;
-            obstacles.push({x: x, y: -70, w: 48, h: 70});
-        }
-
-        function spawnCoin() {
-            let x = 90 + Math.random() * 210;
-            coins.push({x: x, y: -30});
-        }
-
-        function update() {
-            if (!started || gameOver) return;
-            frame++;
-
-            roadY += speed + 4;
-
-            if (left && carX > 75) carX -= 8;
-            if (right && carX < 275) carX += 8;
-
-            if (frame % 38 === 0) spawnObstacle();
-            if (frame % 32 === 0) spawnCoin();
-
-            // Atualiza obstáculos
-            for (let i = 0; i < obstacles.length; i++) {
-                obstacles[i].y += speed + 5;
-                if (obstacles[i].y > 650) obstacles.splice(i, 1);
-            }
-
-            // Atualiza moedas
-            for (let i = 0; i < coins.length; i++) {
-                coins[i].y += speed + 5;
-                if (coins[i].y > 650) coins.splice(i, 1);
-            }
-
-            // Colisão com obstáculos
-            for (let o of obstacles) {
-                if (carX < o.x + o.w && carX + 50 > o.x && 
-                    carY < o.y + o.h && carY + 85 > o.y) {
-                    gameOver = true;
-                }
-            }
-
-            // Coleta de moedas
-            for (let i = coins.length - 1; i >= 0; i--) {
-                let c = coins[i];
-                if (Math.hypot(carX + 25 - c.x, carY + 40 - c.y) < 38) {
-                    coins.splice(i, 1);
-                    score += 20;
-                }
-            }
-
-            if (frame % 500 === 0) speed = Math.min(speed + 0.6, 13);
-        }
-
-        function draw() {
-            drawRoad();
-
-            // Desenha obstáculos
-            ctx.fillStyle = "#f39c12";
-            for (let o of obstacles) {
-                ctx.fillRect(o.x, o.y, o.w, o.h);
-            }
-
-            // Desenha moedas
-            ctx.fillStyle = "#f1c40f";
-            for (let c of coins) {
-                ctx.beginPath();
-                ctx.arc(c.x, c.y, 14, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            drawCar();
-
-            // Pontuação
-            ctx.fillStyle = "white";
-            ctx.font = "bold 26px Arial";
-            ctx.fillText("Pontos: " + score, 15, 45);
-
-            if (!started) {
-                ctx.fillStyle = "rgba(0,0,0,0.75)";
-                ctx.fillRect(0, 0, 400, 600);
-                ctx.fillStyle = "white";
-                ctx.font = "bold 30px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText("Pressione ESPAÇO", 200, 280);
-                ctx.fillText("para começar", 200, 320);
-            }
-
-            if (gameOver) {
-                ctx.fillStyle = "rgba(0,0,0,0.85)";
-                ctx.fillRect(0, 0, 400, 600);
-                ctx.fillStyle = "#e74c3c";
-                ctx.font = "bold 42px Arial";
-                ctx.textAlign = "center";
-                ctx.fillText("GAME OVER", 200, 240);
-                ctx.fillStyle = "white";
-                ctx.font = "bold 28px Arial";
-                ctx.fillText("Pontuação: " + score, 200, 300);
-                ctx.fillText("Pressione R para jogar novamente", 200, 360);
-            }
-        }
-
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // Controles teclado
-        window.addEventListener("keydown", e => {
-            if (e.key === "ArrowLeft") left = true;
-            if (e.key === "ArrowRight") right = true;
-            if (e.key === " " && !started) started = true;
-            if (e.key.toLowerCase() === "r" && gameOver) {
-                location.reload();
-            }
+    function updateObstacles() {
+      obstacles.forEach(o => o.y += 5);
+      obstacles = obstacles.filter(o => o.y < canvas.height);
+      if (Math.random() < 0.03) {
+        obstacles.push({
+          x: Math.random() * (canvas.width - 40),
+          y: -80,
+          width: 40,
+          height: 80
         });
+      }
+    }
 
-        window.addEventListener("keyup", e => {
-            if (e.key === "ArrowLeft") left = false;
-            if (e.key === "ArrowRight") right = false;
-        });
+    function checkCollision() {
+      obstacles.forEach(o => {
+        if (car.x < o.x + o.width &&
+            car.x + car.width > o.x &&
+            car.y < o.y + o.height &&
+            car.y + car.height > o.y) {
+          gameOver = true;
+        }
+      });
+    }
 
-        // Controles de toque (celular)
-        let touchStartX = 0;
-        canvas.addEventListener("touchstart", e => {
-            if (!started) started = true;
-            touchStartX = e.changedTouches[0].screenX;
-        });
+    function gameLoop() {
+      if (gameOver) {
+        ctx.fillStyle = "white";
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over", 120, 300);
+        return;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCar();
+      drawObstacles();
+      updateObstacles();
+      checkCollision();
+      requestAnimationFrame(gameLoop);
+    }
 
-        canvas.addEventListener("touchmove", e => {
-            if (gameOver) return;
-            let x = e.changedTouches[0].screenX;
-            left = x < touchStartX - 20;
-            right = x > touchStartX + 20;
-        });
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && car.x > 0) car.x -= 20;
+      if (e.key === "ArrowRight" && car.x < canvas.width - car.width) car.x += 20;
+    });
 
-        canvas.addEventListener("touchend", () => {
-            left = right = false;
-        });
-
-        loop();
-    </script>
+    gameLoop();
+  </script>
 </body>
 </html>
