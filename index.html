@@ -1,143 +1,224 @@
-import pygame
-import random
-import sys
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida de Carro</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #111;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        canvas {
+            border: 5px solid #fff;
+            box-shadow: 0 0 20px rgba(255, 100, 0, 0.6);
+            image-rendering: crisp-edges;
+        }
+        h1 { margin: 10px 0 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🏎️ CORRIDA DE CARRO 🏎️</h1>
+    <p>Use ← → ou toque nas laterais da tela</p>
+    <canvas id="canvas" width="400" height="600"></canvas>
 
-pygame.init()
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let carX = 175;
+        const carY = 460;
+        let score = 0;
+        let speed = 6;
+        let gameOver = false;
+        let started = false;
 
-# Configurações
-largura = 400
-altura = 600
-tela = pygame.display.set_mode((largura, altura))
-pygame.display.set_caption("Corrida de Carro - Grok")
+        let roadY = 0;
+        let obstacles = [];
+        let coins = [];
+        let frame = 0;
 
-clock = pygame.time.Clock()
-fonte = pygame.font.SysFont("Arial", 28)
+        let left = false, right = false;
 
-# Cores
-BRANCO = (255, 255, 255)
-VERMELHO = (255, 0, 0)
-PRETO = (0, 0, 0)
-CINZA = (40, 40, 40)
-AMARELO = (255, 215, 0)
+        function drawRoad() {
+            ctx.fillStyle = "#222";
+            ctx.fillRect(0, 0, 400, 600);
+            
+            ctx.fillStyle = "#444";
+            ctx.fillRect(70, 0, 260, 600);
 
-# Carro do jogador
-carro_largura = 50
-carro_altura = 80
-carro_x = largura // 2 - carro_largura // 2
-carro_y = altura - 120
-velocidade_carro = 7
+            // Linhas centrais
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 6;
+            for (let i = -100; i < 700; i += 70) {
+                let y = (roadY + i) % 700;
+                ctx.beginPath();
+                ctx.moveTo(195, y);
+                ctx.lineTo(195, y + 45);
+                ctx.stroke();
+            }
+        }
 
-# Variáveis do jogo
-velocidade_estrada = 8
-pontos = 0
-game_over = False
-rodando = True
+        function drawCar() {
+            ctx.fillStyle = "#e74c3c";
+            ctx.fillRect(carX, carY, 50, 85);
+            ctx.fillStyle = "#3498db";
+            ctx.fillRect(carX + 8, carY + 15, 34, 35);
+            ctx.fillStyle = "#2c3e50";
+            ctx.fillRect(carX - 5, carY + 20, 12, 18);
+            ctx.fillRect(carX + 43, carY + 20, 12, 18);
+            ctx.fillRect(carX - 5, carY + 55, 12, 18);
+            ctx.fillRect(carX + 43, carY + 55, 12, 18);
+        }
 
-obstaculos = []
-moedas = []
+        function spawnObstacle() {
+            let x = 90 + Math.random() * 210;
+            obstacles.push({x: x, y: -70, w: 48, h: 70});
+        }
 
-def desenhar_estrada():
-    tela.fill(CINZA)
-    pygame.draw.rect(tela, (30, 30, 30), (80, 0, largura-160, altura))  # pista
-    
-    # Faixas da estrada
-    for i in range(-2, 12):
-        y = (pygame.time.get_ticks() // 8 % 80) + i * 80
-        pygame.draw.rect(tela, BRANCO, (largura//2 - 5, y, 10, 40))
+        function spawnCoin() {
+            let x = 90 + Math.random() * 210;
+            coins.push({x: x, y: -30});
+        }
 
-def desenhar_carro(x, y):
-    pygame.draw.rect(tela, VERMELHO, (x, y, carro_largura, carro_altura))
-    pygame.draw.rect(tela, (0, 200, 255), (x+8, y+15, carro_largura-16, 30))  # vidro
+        function update() {
+            if (!started || gameOver) return;
+            frame++;
 
-def criar_obstaculo():
-    x = random.randint(100, largura-100)
-    obstaculos.append([x, -60, 50, 60])
+            roadY += speed + 4;
 
-def criar_moeda():
-    x = random.randint(100, largura-100)
-    moedas.append([x, -30])
+            if (left && carX > 75) carX -= 8;
+            if (right && carX < 275) carX += 8;
 
-# Loop principal
-while rodando:
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT:
-            rodando = False
-        if evento.type == pygame.KEYDOWN and game_over:
-            if evento.key == pygame.K_r:
-                # Reiniciar
-                obstaculos.clear()
-                moedas.clear()
-                pontos = 0
-                velocidade_estrada = 8
-                game_over = False
+            if (frame % 38 === 0) spawnObstacle();
+            if (frame % 32 === 0) spawnCoin();
 
-    if not game_over:
-        teclas = pygame.key.get_pressed()
-        if teclas[pygame.K_LEFT] and carro_x > 85:
-            carro_x -= velocidade_carro
-        if teclas[pygame.K_RIGHT] and carro_x < largura - carro_largura - 85:
-            carro_x += velocidade_carro
+            // Atualiza obstáculos
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += speed + 5;
+                if (obstacles[i].y > 650) obstacles.splice(i, 1);
+            }
 
-        # Spawn
-        if random.randint(1, 35) == 1:
-            criar_obstaculo()
-        if random.randint(1, 28) == 1:
-            criar_moeda()
+            // Atualiza moedas
+            for (let i = 0; i < coins.length; i++) {
+                coins[i].y += speed + 5;
+                if (coins[i].y > 650) coins.splice(i, 1);
+            }
 
-        # Atualizar obstáculos
-        for obs in obstaculos[:]:
-            obs[1] += velocidade_estrada
-            if obs[1] > altura:
-                obstaculos.remove(obs)
-                pontos += 5
+            // Colisão com obstáculos
+            for (let o of obstacles) {
+                if (carX < o.x + o.w && carX + 50 > o.x && 
+                    carY < o.y + o.h && carY + 85 > o.y) {
+                    gameOver = true;
+                }
+            }
 
-        # Atualizar moedas
-        for m in moedas[:]:
-            m[1] += velocidade_estrada
-            if m[1] > altura:
-                moedas.remove(m)
+            // Coleta de moedas
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let c = coins[i];
+                if (Math.hypot(carX + 25 - c.x, carY + 40 - c.y) < 38) {
+                    coins.splice(i, 1);
+                    score += 20;
+                }
+            }
 
-        # Colisões
-        for obs in obstaculos:
-            if (carro_x < obs[0] + obs[2] and 
-                carro_x + carro_largura > obs[0] and 
-                carro_y < obs[1] + obs[3] and 
-                carro_y + carro_altura > obs[1]):
-                game_over = True
+            if (frame % 500 === 0) speed = Math.min(speed + 0.6, 13);
+        }
 
-        for i, m in enumerate(moedas):
-            if abs(carro_x + carro_largura//2 - m[0]) < 35 and abs(carro_y + carro_altura//2 - m[1]) < 35:
-                moedas.pop(i)
-                pontos += 20
-                break
+        function draw() {
+            drawRoad();
 
-        if pontos > 0 and pontos % 300 == 0 and velocidade_estrada < 16:
-            velocidade_estrada += 0.3
+            // Desenha obstáculos
+            ctx.fillStyle = "#f39c12";
+            for (let o of obstacles) {
+                ctx.fillRect(o.x, o.y, o.w, o.h);
+            }
 
-    # Desenhar tudo
-    desenhar_estrada()
-    
-    for obs in obstaculos:
-        pygame.draw.rect(tela, (200, 50, 0), (obs[0], obs[1], obs[2], obs[3]))
-    
-    for m in moedas:
-        pygame.draw.circle(tela, AMARELO, (m[0], m[1]), 14)
-        pygame.draw.circle(tela, (200, 170, 0), (m[0], m[1]), 8)
-    
-    desenhar_carro(carro_x, carro_y)
+            // Desenha moedas
+            ctx.fillStyle = "#f1c40f";
+            for (let c of coins) {
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 14, 0, Math.PI * 2);
+                ctx.fill();
+            }
 
-    # HUD
-    texto = fonte.render(f"Pontos: {pontos}", True, BRANCO)
-    tela.blit(texto, (10, 10))
+            drawCar();
 
-    if game_over:
-        go_texto = fonte.render("GAME OVER", True, (255, 50, 50))
-        tela.blit(go_texto, (largura//2 - go_texto.get_width()//2, altura//2 - 50))
-        restart = fonte.render("Pressione R para jogar novamente", True, BRANCO)
-        tela.blit(restart, (largura//2 - restart.get_width()//2, altura//2 + 20))
+            // Pontuação
+            ctx.fillStyle = "white";
+            ctx.font = "bold 26px Arial";
+            ctx.fillText("Pontos: " + score, 15, 45);
 
-    pygame.display.flip()
-    clock.tick(60)
+            if (!started) {
+                ctx.fillStyle = "rgba(0,0,0,0.75)";
+                ctx.fillRect(0, 0, 400, 600);
+                ctx.fillStyle = "white";
+                ctx.font = "bold 30px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("Pressione ESPAÇO", 200, 280);
+                ctx.fillText("para começar", 200, 320);
+            }
 
-pygame.quit()
-sys.exit()
+            if (gameOver) {
+                ctx.fillStyle = "rgba(0,0,0,0.85)";
+                ctx.fillRect(0, 0, 400, 600);
+                ctx.fillStyle = "#e74c3c";
+                ctx.font = "bold 42px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", 200, 240);
+                ctx.fillStyle = "white";
+                ctx.font = "bold 28px Arial";
+                ctx.fillText("Pontuação: " + score, 200, 300);
+                ctx.fillText("Pressione R para jogar novamente", 200, 360);
+            }
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Controles teclado
+        window.addEventListener("keydown", e => {
+            if (e.key === "ArrowLeft") left = true;
+            if (e.key === "ArrowRight") right = true;
+            if (e.key === " " && !started) started = true;
+            if (e.key.toLowerCase() === "r" && gameOver) {
+                location.reload();
+            }
+        });
+
+        window.addEventListener("keyup", e => {
+            if (e.key === "ArrowLeft") left = false;
+            if (e.key === "ArrowRight") right = false;
+        });
+
+        // Controles de toque (celular)
+        let touchStartX = 0;
+        canvas.addEventListener("touchstart", e => {
+            if (!started) started = true;
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        canvas.addEventListener("touchmove", e => {
+            if (gameOver) return;
+            let x = e.changedTouches[0].screenX;
+            left = x < touchStartX - 20;
+            right = x > touchStartX + 20;
+        });
+
+        canvas.addEventListener("touchend", () => {
+            left = right = false;
+        });
+
+        loop();
+    </script>
+</body>
+</html>
