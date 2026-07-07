@@ -6,22 +6,54 @@
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { background: #333; display: block; margin: auto; }
+
+    /* Estilo do carro */
+    .car {
+      position: absolute;
+      width: 60px;
+      height: 100px;
+      background: linear-gradient(to bottom, #1e90ff, #0000cd);
+      border-radius: 10px;
+      border: 2px solid #fff;
+    }
+
+    .car::before, .car::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: black;
+      border-radius: 50%;
+    }
+
+    .car::before { bottom: -10px; left: 5px; }
+    .car::after { bottom: -10px; right: 5px; }
+
+    .windshield {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 40px;
+      height: 20px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
+  <div class="car" id="car">
+    <div class="windshield"></div>
+  </div>
   <canvas id="gameCanvas" width="400" height="600"></canvas>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+    const carElement = document.getElementById("car");
 
-    let car = { x: 180, y: 500, width: 40, height: 80, color: "blue" };
+    let car = { x: 180, y: 500, width: 60, height: 100 };
     let obstacles = [];
     let gameOver = false;
-
-    function drawCar() {
-      ctx.fillStyle = car.color;
-      ctx.fillRect(car.x, car.y, car.width, car.height);
-    }
 
     function drawObstacles() {
       ctx.fillStyle = "red";
@@ -60,10 +92,14 @@
         return;
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCar();
       drawObstacles();
       updateObstacles();
       checkCollision();
+
+      // Atualiza posição do carro estilizado
+      carElement.style.left = car.x + "px";
+      carElement.style.top = car.y + "px";
+
       requestAnimationFrame(gameLoop);
     }
 
