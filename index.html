@@ -1,114 +1,440 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Jogo de Carro</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { background: #333; display: block; margin: auto; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caça-Palavras</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    /* Estilo do carro */
-    .car {
-      position: absolute;
-      width: 60px;
-      height: 100px;
-      background: linear-gradient(to bottom, #1e90ff, #0000cd);
-      border-radius: 10px;
-      border: 2px solid #fff;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #eee;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-    .car::before, .car::after {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: black;
-      border-radius: 50%;
-    }
+        h1 {
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+            text-shadow: 0 0 10px #0f3460;
+        }
 
-    .car::before { bottom: -10px; left: 5px; }
-    .car::after { bottom: -10px; right: 5px; }
+        .info {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
 
-    .windshield {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 40px;
-      height: 20px;
-      background: rgba(255,255,255,0.6);
-      border-radius: 5px;
-    }
-  </style>
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            max-width: 1000px;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            grid-template-rows: repeat(10, 40px);
+            gap: 2px;
+            background: #0f3460;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            user-select: none;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: #1a1a2e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        .cell:hover {
+            background: #533483;
+        }
+
+        .cell.selected {
+            background: #e94560;
+            transform: scale(1.05);
+        }
+
+        .cell.found {
+            background: #00b894;
+            color: #fff;
+        }
+
+        .words-panel {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 12px;
+            min-width: 220px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        .words-panel h2 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 8px;
+        }
+
+        #word-list {
+            list-style: none;
+        }
+
+        #word-list li {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        #word-list li.found {
+            background: #00b894;
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: #e94560;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background: #ff6b81;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #00b894;
+            min-height: 30px;
+        }
+    </style>
 </head>
 <body>
-  <div class="car" id="car">
-    <div class="windshield"></div>
-  </div>
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <h1>🔍 Caça-Palavras</h1>
+    <div class="info">Encontre todas as palavras na grade!</div>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const carElement = document.getElementById("car");
+    <div class="container">
+        <div id="grid"></div>
 
-    let car = { x: 180, y: 500, width: 60, height: 100 };
-    let obstacles = [];
-    let gameOver = false;
+        <div class="words-panel">
+            <h2>Palavras</h2>
+            <ul id="word-list"></ul>
+        </div>
+    </div>
 
-    function drawObstacles() {
-      ctx.fillStyle = "red";
-      obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.width, o.height));
-    }
+    <div class="controls">
+        <button onclick="novoJogo()">Novo Jogo</button>
+        <button onclick="mostrarSolucao()">Mostrar Solução</button>
+    </div>
 
-    function updateObstacles() {
-      obstacles.forEach(o => o.y += 5);
-      obstacles = obstacles.filter(o => o.y < canvas.height);
-      if (Math.random() < 0.03) {
-        obstacles.push({
-          x: Math.random() * (canvas.width - 40),
-          y: -80,
-          width: 40,
-          height: 80
-        });
-      }
-    }
+    <div class="message" id="message"></div>
 
-    function checkCollision() {
-      obstacles.forEach(o => {
-        if (car.x < o.x + o.width &&
-            car.x + car.width > o.x &&
-            car.y < o.y + o.height &&
-            car.y + car.height > o.y) {
-          gameOver = true;
+    <script>
+        const tamanho = 10;
+        const palavras = [
+            "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
+            "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA"
+        ];
+
+        let grade = [];
+        let palavrasEncontradas = new Set();
+        let selecionando = false;
+        let caminhoSelecionado = [];
+        let direcaoAtual = null;
+
+        // Direções possíveis (horizontal, vertical, diagonal)
+        const direcoes = [
+            {dx: 0, dy: 1},   // direita
+            {dx: 1, dy: 0},   // baixo
+            {dx: 1, dy: 1},   // diagonal baixo-direita
+            {dx: 1, dy: -1},  // diagonal baixo-esquerda
+            {dx: 0, dy: -1},  // esquerda
+            {dx: -1, dy: 0},  // cima
+            {dx: -1, dy: 1},  // diagonal cima-direita
+            {dx: -1, dy: -1}  // diagonal cima-esquerda
+        ];
+
+        function criarGradeVazia() {
+            return Array.from({length: tamanho}, () => Array(tamanho).fill(''));
         }
-      });
-    }
 
-    function gameLoop() {
-      if (gameOver) {
-        ctx.fillStyle = "white";
-        ctx.font = "30px Arial";
-        ctx.fillText("Game Over", 120, 300);
-        return;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawObstacles();
-      updateObstacles();
-      checkCollision();
+        function podeColocar(palavra, linha, col, dir) {
+            for (let i = 0; i < palavra.length; i++) {
+                const r = linha + dir.dx * i;
+                const c = col + dir.dy * i;
+                if (r < 0 || r >= tamanho || c < 0 || c >= tamanho) return false;
+                if (grade[r][c] !== '' && grade[r][c] !== palavra[i]) return false;
+            }
+            return true;
+        }
 
-      // Atualiza posição do carro estilizado
-      carElement.style.left = car.x + "px";
-      carElement.style.top = car.y + "px";
+        function colocarPalavra(palavra) {
+            const tentativas = 100;
+            for (let t = 0; t < tentativas; t++) {
+                const dir = direcoes[Math.floor(Math.random() * direcoes.length)];
+                const linha = Math.floor(Math.random() * tamanho);
+                const col = Math.floor(Math.random() * tamanho);
+                if (podeColocar(palavra, linha, col, dir)) {
+                    for (let i = 0; i < palavra.length; i++) {
+                        grade[linha + dir.dx * i][col + dir.dy * i] = palavra[i];
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
 
-      requestAnimationFrame(gameLoop);
-    }
+        function preencherLetrasAleatorias() {
+            const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            for (let i = 0; i < tamanho; i++) {
+                for (let j = 0; j < tamanho; j++) {
+                    if (grade[i][j] === '') {
+                        grade[i][j] = letras[Math.floor(Math.random() * letras.length)];
+                    }
+                }
+            }
+        }
 
-    document.addEventListener("keydown", e => {
-      if (e.key === "ArrowLeft" && car.x > 0) car.x -= 20;
-      if (e.key === "ArrowRight" && car.x < canvas.width - car.width) car.x += 20;
-    });
+        function gerarGrade() {
+            grade = criarGradeVazia();
+            // Embaralha as palavras para variar a posição
+            const palavrasEmbaralhadas = [...palavras].sort(() => Math.random() - 0.5);
+            palavrasEmbaralhadas.forEach(p => colocarPalavra(p));
+            preencherLetrasAleatorias();
+        }
 
-    gameLoop();
-  </script>
+        function renderizarGrade() {
+            const gridEl = document.getElementById('grid');
+            gridEl.innerHTML = '';
+            for (let i = 0; i < tamanho; i++) {
+                for (let j = 0; j < tamanho; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = grade[i][j];
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.addEventListener('mousedown', iniciarSelecao);
+                    cell.addEventListener('mouseenter', continuarSelecao);
+                    cell.addEventListener('mouseup', finalizarSelecao);
+                    gridEl.appendChild(cell);
+                }
+            }
+        }
+
+        function renderizarListaPalavras() {
+            const lista = document.getElementById('word-list');
+            lista.innerHTML = '';
+            palavras.forEach(p => {
+                const li = document.createElement('li');
+                li.textContent = p;
+                li.id = 'palavra-' + p;
+                if (palavrasEncontradas.has(p)) {
+                    li.classList.add('found');
+                }
+                lista.appendChild(li);
+            });
+        }
+
+        function iniciarSelecao(e) {
+            selecionando = true;
+            caminhoSelecionado = [];
+            direcaoAtual = null;
+            const cell = e.target;
+            adicionarAoCaminho(cell);
+            e.preventDefault();
+        }
+
+        function continuarSelecao(e) {
+            if (!selecionando) return;
+            const cell = e.target;
+            if (!cell.classList.contains('cell')) return;
+
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+
+            if (caminhoSelecionado.length === 0) {
+                adicionarAoCaminho(cell);
+                return;
+            }
+
+            const ultimo = caminhoSelecionado[caminhoSelecionado.length - 1];
+            const lastRow = parseInt(ultimo.dataset.row);
+            const lastCol = parseInt(ultimo.dataset.col);
+
+            // Verifica se já está no caminho
+            if (caminhoSelecionado.some(c => c.dataset.row == row && c.dataset.col == col)) {
+                // Se voltou para o penúltimo, remove o último
+                if (caminhoSelecionado.length > 1) {
+                    const penultimo = caminhoSelecionado[caminhoSelecionado.length - 2];
+                    if (penultimo.dataset.row == row && penultimo.dataset.col == col) {
+                        caminhoSelecionado.pop().classList.remove('selected');
+                    }
+                }
+                return;
+            }
+
+            // Define a direção no segundo clique
+            if (caminhoSelecionado.length === 1) {
+                const dx = row - lastRow;
+                const dy = col - lastCol;
+                if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1 && (dx !== 0 || dy !== 0)) {
+                    direcaoAtual = {dx, dy};
+                    adicionarAoCaminho(cell);
+                }
+                return;
+            }
+
+            // Continua na mesma direção
+            if (direcaoAtual) {
+                const esperadoRow = lastRow + direcaoAtual.dx;
+                const esperadoCol = lastCol + direcaoAtual.dy;
+                if (row === esperadoRow && col === esperadoCol) {
+                    adicionarAoCaminho(cell);
+                }
+            }
+        }
+
+        function adicionarAoCaminho(cell) {
+            if (!caminhoSelecionado.includes(cell)) {
+                caminhoSelecionado.push(cell);
+                cell.classList.add('selected');
+            }
+        }
+
+        function finalizarSelecao() {
+            if (!selecionando) return;
+            selecionando = false;
+
+            const palavra = caminhoSelecionado.map(c => c.textContent).join('');
+            const palavraInvertida = palavra.split('').reverse().join('');
+
+            let encontrada = null;
+            if (palavras.includes(palavra) && !palavrasEncontradas.has(palavra)) {
+                encontrada = palavra;
+            } else if (palavras.includes(palavraInvertida) && !palavrasEncontradas.has(palavraInvertida)) {
+                encontrada = palavraInvertida;
+            }
+
+            if (encontrada) {
+                palavrasEncontradas.add(encontrada);
+                caminhoSelecionado.forEach(c => {
+                    c.classList.remove('selected');
+                    c.classList.add('found');
+                });
+                document.getElementById('palavra-' + encontrada).classList.add('found');
+                verificarVitoria();
+            } else {
+                // Limpa seleção
+                caminhoSelecionado.forEach(c => c.classList.remove('selected'));
+            }
+
+            caminhoSelecionado = [];
+            direcaoAtual = null;
+        }
+
+        function verificarVitoria() {
+            if (palavrasEncontradas.size === palavras.length) {
+                document.getElementById('message').textContent = '🎉 Parabéns! Você encontrou todas as palavras!';
+            }
+        }
+
+        function novoJogo() {
+            palavrasEncontradas.clear();
+            document.getElementById('message').textContent = '';
+            gerarGrade();
+            renderizarGrade();
+            renderizarListaPalavras();
+        }
+
+        function mostrarSolucao() {
+            // Marca todas as palavras restantes
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(c => c.classList.remove('selected'));
+
+            // Reinicia e mostra as palavras
+            palavras.forEach(palavra => {
+                if (!palavrasEncontradas.has(palavra)) {
+                    // Procura a palavra na grade
+                    for (let i = 0; i < tamanho; i++) {
+                        for (let j = 0; j < tamanho; j++) {
+                            for (const dir of direcoes) {
+                                if (podeColocarNaGradeAtual(palavra, i, j, dir)) {
+                                    for (let k = 0; k < palavra.length; k++) {
+                                        const r = i + dir.dx * k;
+                                        const c = j + dir.dy * k;
+                                        const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                                        if (cell) cell.classList.add('found');
+                                    }
+                                    palavrasEncontradas.add(palavra);
+                                    document.getElementById('palavra-' + palavra).classList.add('found');
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            verificarVitoria();
+        }
+
+        function podeColocarNaGradeAtual(palavra, linha, col, dir) {
+            for (let i = 0; i < palavra.length; i++) {
+                const r = linha + dir.dx * i;
+                const c = col + dir.dy * i;
+                if (r < 0 || r >= tamanho || c < 0 || c >= tamanho) return false;
+                if (grade[r][c] !== palavra[i]) return false;
+            }
+            return true;
+        }
+
+        // Previne seleção de texto
+        document.addEventListener('selectstart', e => e.preventDefault());
+        document.addEventListener('mouseup', finalizarSelecao);
+
+        // Inicia o jogo
+        novoJogo();
+    </script>
 </body>
 </html>
