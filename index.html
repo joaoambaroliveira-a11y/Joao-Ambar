@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caça-Palavras</title>
+    <title>Caça-Palavras Neon</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,8 +13,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #eee;
+            background: #000000;
+            color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -24,76 +24,113 @@
 
         h1 {
             margin-bottom: 10px;
-            font-size: 2.2rem;
-            text-shadow: 0 0 10px #0f3460;
+            font-size: 2.4rem;
+            color: #ffffff;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 10px #fff,
+                0 0 20px #0ff,
+                0 0 40px #0ff,
+                0 0 80px #0ff;
+            letter-spacing: 2px;
         }
 
         .info {
-            margin-bottom: 20px;
-            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-size: 1.15rem;
+            color: #e0e0e0;
+            text-shadow: 0 0 8px #0ff;
         }
 
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
+            gap: 35px;
             justify-content: center;
             max-width: 1000px;
         }
 
         #grid {
             display: grid;
-            grid-template-columns: repeat(10, 40px);
-            grid-template-rows: repeat(10, 40px);
-            gap: 2px;
-            background: #0f3460;
-            padding: 8px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            grid-template-columns: repeat(10, 42px);
+            grid-template-rows: repeat(10, 42px);
+            gap: 3px;
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 14px;
+            border: 2px solid #0ff;
+            box-shadow: 
+                0 0 10px #0ff,
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 15px rgba(0, 255, 255, 0.1);
             user-select: none;
         }
 
         .cell {
-            width: 40px;
-            height: 40px;
-            background: #1a1a2e;
+            width: 42px;
+            height: 42px;
+            background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             font-weight: bold;
+            color: #ffffff;
             cursor: pointer;
             border-radius: 6px;
-            transition: background 0.15s, transform 0.1s;
+            border: 1px solid #222;
+            transition: all 0.15s ease;
+            text-shadow: 0 0 6px #fff;
         }
 
         .cell:hover {
-            background: #533483;
-        }
-
-        .cell.selected {
-            background: #e94560;
+            background: #1a1a1a;
+            border-color: #0ff;
+            box-shadow: 0 0 8px #0ff;
             transform: scale(1.05);
         }
 
+        .cell.selected {
+            background: #0ff;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 
+                0 0 10px #0ff,
+                0 0 20px #0ff;
+            text-shadow: none;
+            transform: scale(1.08);
+        }
+
         .cell.found {
-            background: #00b894;
-            color: #fff;
+            background: #00ff9d;
+            color: #000;
+            border-color: #fff;
+            box-shadow: 
+                0 0 10px #00ff9d,
+                0 0 20px #00ff9d;
+            text-shadow: none;
         }
 
         .words-panel {
-            background: #0f3460;
-            padding: 20px;
-            border-radius: 12px;
-            min-width: 220px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            background: #0a0a0a;
+            padding: 22px;
+            border-radius: 14px;
+            min-width: 230px;
+            border: 2px solid #ff00aa;
+            box-shadow: 
+                0 0 10px #ff00aa,
+                0 0 20px rgba(255, 0, 170, 0.3);
         }
 
         .words-panel h2 {
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            border-bottom: 2px solid #e94560;
+            margin-bottom: 16px;
+            font-size: 1.35rem;
+            color: #fff;
+            border-bottom: 2px solid #ff00aa;
             padding-bottom: 8px;
+            text-shadow: 
+                0 0 5px #fff,
+                0 0 15px #ff00aa;
         }
 
         #word-list {
@@ -101,41 +138,58 @@
         }
 
         #word-list li {
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            background: #1a1a2e;
-            border-radius: 6px;
+            padding: 9px 14px;
+            margin-bottom: 7px;
+            background: #111;
+            border-radius: 7px;
             font-size: 1.1rem;
+            color: #fff;
+            border: 1px solid #333;
             transition: all 0.3s;
+            text-shadow: 0 0 6px #fff;
         }
 
         #word-list li.found {
-            background: #00b894;
+            background: #00ff9d;
+            color: #000;
             text-decoration: line-through;
-            opacity: 0.8;
+            border-color: #fff;
+            box-shadow: 0 0 10px #00ff9d;
+            text-shadow: none;
+            opacity: 0.9;
         }
 
         .controls {
-            margin-top: 25px;
+            margin-top: 30px;
             display: flex;
-            gap: 15px;
+            gap: 18px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         button {
-            background: #e94560;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            border-radius: 8px;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #0ff;
+            padding: 13px 28px;
+            font-size: 1.05rem;
+            border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            transition: background 0.2s, transform 0.1s;
+            text-shadow: 0 0 8px #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+            transition: all 0.25s ease;
+            letter-spacing: 1px;
         }
 
         button:hover {
-            background: #ff6b81;
-            transform: translateY(-2px);
+            background: #0ff;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 
+                0 0 15px #0ff,
+                0 0 30px #0ff;
+            transform: translateY(-3px);
         }
 
         button:active {
@@ -143,30 +197,35 @@
         }
 
         .message {
-            margin-top: 20px;
-            font-size: 1.3rem;
+            margin-top: 25px;
+            font-size: 1.4rem;
             font-weight: bold;
-            color: #00b894;
-            min-height: 30px;
+            color: #00ff9d;
+            text-shadow: 
+                0 0 5px #00ff9d,
+                0 0 15px #00ff9d,
+                0 0 30px #00ff9d;
+            min-height: 35px;
+            letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
-    <h1>🔍 Caça-Palavras</h1>
+    <h1>🔍 CAÇA-PALAVRAS</h1>
     <div class="info">Encontre todas as palavras na grade!</div>
 
     <div class="container">
         <div id="grid"></div>
 
         <div class="words-panel">
-            <h2>Palavras</h2>
+            <h2>PALAVRAS</h2>
             <ul id="word-list"></ul>
         </div>
     </div>
 
     <div class="controls">
-        <button onclick="novoJogo()">Novo Jogo</button>
-        <button onclick="mostrarSolucao()">Mostrar Solução</button>
+        <button onclick="novoJogo()">NOVO JOGO</button>
+        <button onclick="mostrarSolucao()">MOSTRAR SOLUÇÃO</button>
     </div>
 
     <div class="message" id="message"></div>
@@ -184,16 +243,15 @@
         let caminhoSelecionado = [];
         let direcaoAtual = null;
 
-        // Direções possíveis (horizontal, vertical, diagonal)
         const direcoes = [
-            {dx: 0, dy: 1},   // direita
-            {dx: 1, dy: 0},   // baixo
-            {dx: 1, dy: 1},   // diagonal baixo-direita
-            {dx: 1, dy: -1},  // diagonal baixo-esquerda
-            {dx: 0, dy: -1},  // esquerda
-            {dx: -1, dy: 0},  // cima
-            {dx: -1, dy: 1},  // diagonal cima-direita
-            {dx: -1, dy: -1}  // diagonal cima-esquerda
+            {dx: 0, dy: 1},
+            {dx: 1, dy: 0},
+            {dx: 1, dy: 1},
+            {dx: 1, dy: -1},
+            {dx: 0, dy: -1},
+            {dx: -1, dy: 0},
+            {dx: -1, dy: 1},
+            {dx: -1, dy: -1}
         ];
 
         function criarGradeVazia() {
@@ -239,7 +297,6 @@
 
         function gerarGrade() {
             grade = criarGradeVazia();
-            // Embaralha as palavras para variar a posição
             const palavrasEmbaralhadas = [...palavras].sort(() => Math.random() - 0.5);
             palavrasEmbaralhadas.forEach(p => colocarPalavra(p));
             preencherLetrasAleatorias();
@@ -303,9 +360,7 @@
             const lastRow = parseInt(ultimo.dataset.row);
             const lastCol = parseInt(ultimo.dataset.col);
 
-            // Verifica se já está no caminho
             if (caminhoSelecionado.some(c => c.dataset.row == row && c.dataset.col == col)) {
-                // Se voltou para o penúltimo, remove o último
                 if (caminhoSelecionado.length > 1) {
                     const penultimo = caminhoSelecionado[caminhoSelecionado.length - 2];
                     if (penultimo.dataset.row == row && penultimo.dataset.col == col) {
@@ -315,7 +370,6 @@
                 return;
             }
 
-            // Define a direção no segundo clique
             if (caminhoSelecionado.length === 1) {
                 const dx = row - lastRow;
                 const dy = col - lastCol;
@@ -326,7 +380,6 @@
                 return;
             }
 
-            // Continua na mesma direção
             if (direcaoAtual) {
                 const esperadoRow = lastRow + direcaoAtual.dx;
                 const esperadoCol = lastCol + direcaoAtual.dy;
@@ -366,7 +419,6 @@
                 document.getElementById('palavra-' + encontrada).classList.add('found');
                 verificarVitoria();
             } else {
-                // Limpa seleção
                 caminhoSelecionado.forEach(c => c.classList.remove('selected'));
             }
 
@@ -376,7 +428,7 @@
 
         function verificarVitoria() {
             if (palavrasEncontradas.size === palavras.length) {
-                document.getElementById('message').textContent = '🎉 Parabéns! Você encontrou todas as palavras!';
+                document.getElementById('message').textContent = '🎉 PARABÉNS! VOCÊ ENCONTROU TODAS AS PALAVRAS!';
             }
         }
 
@@ -389,14 +441,11 @@
         }
 
         function mostrarSolucao() {
-            // Marca todas as palavras restantes
             const cells = document.querySelectorAll('.cell');
             cells.forEach(c => c.classList.remove('selected'));
 
-            // Reinicia e mostra as palavras
             palavras.forEach(palavra => {
                 if (!palavrasEncontradas.has(palavra)) {
-                    // Procura a palavra na grade
                     for (let i = 0; i < tamanho; i++) {
                         for (let j = 0; j < tamanho; j++) {
                             for (const dir of direcoes) {
@@ -429,11 +478,9 @@
             return true;
         }
 
-        // Previne seleção de texto
         document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('mouseup', finalizarSelecao);
 
-        // Inicia o jogo
         novoJogo();
     </script>
 </body>
