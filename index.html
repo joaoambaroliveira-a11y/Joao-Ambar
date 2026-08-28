@@ -42,6 +42,46 @@
             text-shadow: 0 0 8px #0ff;
         }
 
+        /* Campo do nome do jogador */
+        .jogador-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .jogador-box label {
+            font-size: 1rem;
+            color: #0ff;
+            text-shadow: 0 0 8px #0ff;
+            font-weight: bold;
+        }
+
+        #nomeJogador {
+            background: #0a0a0a;
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            padding: 10px 16px;
+            color: #fff;
+            font-size: 1.1rem;
+            width: 220px;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            transition: all 0.25s;
+        }
+
+        #nomeJogador:focus {
+            box-shadow: 0 0 15px #0ff, 0 0 25px #0ff;
+            border-color: #fff;
+        }
+
+        #nomeJogador::placeholder {
+            color: #555;
+        }
+
         .timer-box {
             background: #0a0a0a;
             border: 2px solid #0ff;
@@ -275,7 +315,13 @@
 </head>
 <body>
     <h1>🔍 CAÇA-PALAVRAS</h1>
-    <div class="info">Escolha a categoria e o nível de dificuldade</div>
+    <div class="info">Digite o nome do jogador e escolha a categoria/nível</div>
+
+    <!-- NOME DO JOGADOR -->
+    <div class="jogador-box">
+        <label for="nomeJogador">JOGADOR:</label>
+        <input type="text" id="nomeJogador" placeholder="Digite seu nome..." maxlength="20" autocomplete="off">
+    </div>
 
     <!-- CRONÔMETRO -->
     <div class="timer-box">
@@ -382,6 +428,11 @@
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
+        }
+
+        function pegarNomeJogador() {
+            const nome = document.getElementById('nomeJogador').value.trim();
+            return nome !== '' ? nome.toUpperCase() : 'JOGADOR';
         }
 
         const direcoes = [
@@ -606,8 +657,10 @@
                 pararTimer();
 
                 const tempoFinal = formatarTempo(segundos);
+                const nome = pegarNomeJogador();
+
                 document.getElementById('message').textContent = 
-                    `🎉 PARABÉNS! Você terminou em ${tempoFinal}!`;
+                    `🎉 PARABÉNS, ${nome}! Você terminou em ${tempoFinal}!`;
             }
         }
 
@@ -617,7 +670,7 @@
             gerarGrade();
             renderizarGrade();
             renderizarListaPalavras();
-            iniciarTimer();          // reinicia o cronômetro
+            iniciarTimer();
         }
 
         function mostrarSolucao() {
