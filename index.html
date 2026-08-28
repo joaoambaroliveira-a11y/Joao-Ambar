@@ -36,10 +36,49 @@
         }
 
         .info {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 1.15rem;
             color: #e0e0e0;
             text-shadow: 0 0 8px #0ff;
+        }
+
+        .categorias {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .categoria-btn {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #ff00aa;
+            padding: 12px 22px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: 0 0 8px #ff00aa;
+            box-shadow: 0 0 10px rgba(255, 0, 170, 0.4);
+            transition: all 0.25s ease;
+            letter-spacing: 1px;
+        }
+
+        .categoria-btn:hover {
+            background: #ff00aa;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 15px #ff00aa, 0 0 30px #ff00aa;
+            transform: translateY(-3px);
+        }
+
+        .categoria-btn.ativo {
+            background: #0ff;
+            color: #000;
+            border-color: #0ff;
+            text-shadow: none;
+            box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
         }
 
         .container {
@@ -94,9 +133,7 @@
             background: #0ff;
             color: #000;
             border-color: #fff;
-            box-shadow: 
-                0 0 10px #0ff,
-                0 0 20px #0ff;
+            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
             text-shadow: none;
             transform: scale(1.08);
         }
@@ -105,9 +142,7 @@
             background: #00ff9d;
             color: #000;
             border-color: #fff;
-            box-shadow: 
-                0 0 10px #00ff9d,
-                0 0 20px #00ff9d;
+            box-shadow: 0 0 10px #00ff9d, 0 0 20px #00ff9d;
             text-shadow: none;
         }
 
@@ -117,9 +152,7 @@
             border-radius: 14px;
             min-width: 230px;
             border: 2px solid #ff00aa;
-            box-shadow: 
-                0 0 10px #ff00aa,
-                0 0 20px rgba(255, 0, 170, 0.3);
+            box-shadow: 0 0 10px #ff00aa, 0 0 20px rgba(255, 0, 170, 0.3);
         }
 
         .words-panel h2 {
@@ -128,9 +161,7 @@
             color: #fff;
             border-bottom: 2px solid #ff00aa;
             padding-bottom: 8px;
-            text-shadow: 
-                0 0 5px #fff,
-                0 0 15px #ff00aa;
+            text-shadow: 0 0 5px #fff, 0 0 15px #ff00aa;
         }
 
         #word-list {
@@ -186,9 +217,7 @@
             background: #0ff;
             color: #000;
             text-shadow: none;
-            box-shadow: 
-                0 0 15px #0ff,
-                0 0 30px #0ff;
+            box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
             transform: translateY(-3px);
         }
 
@@ -201,10 +230,7 @@
             font-size: 1.4rem;
             font-weight: bold;
             color: #00ff9d;
-            text-shadow: 
-                0 0 5px #00ff9d,
-                0 0 15px #00ff9d,
-                0 0 30px #00ff9d;
+            text-shadow: 0 0 5px #00ff9d, 0 0 15px #00ff9d, 0 0 30px #00ff9d;
             min-height: 35px;
             letter-spacing: 1px;
         }
@@ -212,7 +238,13 @@
 </head>
 <body>
     <h1>🔍 CAÇA-PALAVRAS</h1>
-    <div class="info">Encontre todas as palavras na grade!</div>
+    <div class="info">Escolha a categoria e encontre todas as palavras!</div>
+
+    <div class="categorias">
+        <button class="categoria-btn ativo" onclick="escolherCategoria('animais')">🐾 ANIMAIS</button>
+        <button class="categoria-btn" onclick="escolherCategoria('objetos')">📦 OBJETOS</button>
+        <button class="categoria-btn" onclick="escolherCategoria('pessoas')">👤 NOMES DE PESSOAS</button>
+    </div>
 
     <div class="container">
         <div id="grid"></div>
@@ -232,11 +264,24 @@
 
     <script>
         const tamanho = 10;
-        const palavras = [
-            "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
-            "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA"
-        ];
 
+        const categorias = {
+            animais: [
+                "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
+                "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA"
+            ],
+            objetos: [
+                "MESA", "CADEIRA", "LIVRO", "CANETA", "RELOGIO",
+                "CELULAR", "CHAVE", "OCULOS", "MOCHILA", "LAMPADA"
+            ],
+            pessoas: [
+                "ANA", "JOAO", "MARIA", "PEDRO", "LUCAS",
+                "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ"
+            ]
+        };
+
+        let palavras = [...categorias.animais];
+        let categoriaAtual = 'animais';
         let grade = [];
         let palavrasEncontradas = new Set();
         let selecionando = false;
@@ -253,6 +298,19 @@
             {dx: -1, dy: 1},
             {dx: -1, dy: -1}
         ];
+
+        function escolherCategoria(cat) {
+            categoriaAtual = cat;
+            palavras = [...categorias[cat]];
+
+            // Atualiza botões ativos
+            document.querySelectorAll('.categoria-btn').forEach(btn => {
+                btn.classList.remove('ativo');
+            });
+            event.target.classList.add('ativo');
+
+            novoJogo();
+        }
 
         function criarGradeVazia() {
             return Array.from({length: tamanho}, () => Array(tamanho).fill(''));
@@ -481,6 +539,7 @@
         document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('mouseup', finalizarSelecao);
 
+        // Inicia com Animais
         novoJogo();
     </script>
 </body>
