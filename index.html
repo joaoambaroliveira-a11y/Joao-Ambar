@@ -23,8 +23,8 @@
         }
 
         h1 {
-            margin-bottom: 10px;
-            font-size: 2.4rem;
+            margin-bottom: 8px;
+            font-size: 2.3rem;
             color: #ffffff;
             text-shadow: 
                 0 0 5px #fff,
@@ -36,26 +36,42 @@
         }
 
         .info {
-            margin-bottom: 20px;
-            font-size: 1.15rem;
+            margin-bottom: 18px;
+            font-size: 1.1rem;
             color: #e0e0e0;
             text-shadow: 0 0 8px #0ff;
         }
 
-        .categorias {
+        .opcoes {
             display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .grupo {
+            display: flex;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
         }
 
-        .categoria-btn {
+        .grupo-titulo {
+            width: 100%;
+            text-align: center;
+            font-size: 0.95rem;
+            color: #aaa;
+            margin-bottom: 4px;
+            text-shadow: 0 0 6px #0ff;
+        }
+
+        .categoria-btn, .nivel-btn {
             background: transparent;
             color: #fff;
             border: 2px solid #ff00aa;
-            padding: 11px 18px;
-            font-size: 0.95rem;
+            padding: 10px 16px;
+            font-size: 0.9rem;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
@@ -65,15 +81,15 @@
             letter-spacing: 1px;
         }
 
-        .categoria-btn:hover {
+        .categoria-btn:hover, .nivel-btn:hover {
             background: #ff00aa;
             color: #000;
             text-shadow: none;
             box-shadow: 0 0 15px #ff00aa, 0 0 30px #ff00aa;
-            transform: translateY(-3px);
+            transform: translateY(-2px);
         }
 
-        .categoria-btn.ativo {
+        .categoria-btn.ativo, .nivel-btn.ativo {
             background: #0ff;
             color: #000;
             border-color: #0ff;
@@ -84,18 +100,16 @@
         .container {
             display: flex;
             flex-wrap: wrap;
-            gap: 35px;
+            gap: 30px;
             justify-content: center;
-            max-width: 1000px;
+            max-width: 1100px;
         }
 
         #grid {
             display: grid;
-            grid-template-columns: repeat(10, 42px);
-            grid-template-rows: repeat(10, 42px);
-            gap: 3px;
+            gap: 2px;
             background: #0a0a0a;
-            padding: 10px;
+            padding: 8px;
             border-radius: 14px;
             border: 2px solid #0ff;
             box-shadow: 
@@ -106,17 +120,14 @@
         }
 
         .cell {
-            width: 42px;
-            height: 42px;
             background: #111;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.35rem;
             font-weight: bold;
             color: #ffffff;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 5px;
             border: 1px solid #222;
             transition: all 0.15s ease;
             text-shadow: 0 0 6px #fff;
@@ -148,16 +159,16 @@
 
         .words-panel {
             background: #0a0a0a;
-            padding: 22px;
+            padding: 20px;
             border-radius: 14px;
-            min-width: 230px;
+            min-width: 220px;
             border: 2px solid #ff00aa;
             box-shadow: 0 0 10px #ff00aa, 0 0 20px rgba(255, 0, 170, 0.3);
         }
 
         .words-panel h2 {
-            margin-bottom: 16px;
-            font-size: 1.35rem;
+            margin-bottom: 14px;
+            font-size: 1.3rem;
             color: #fff;
             border-bottom: 2px solid #ff00aa;
             padding-bottom: 8px;
@@ -169,11 +180,11 @@
         }
 
         #word-list li {
-            padding: 9px 14px;
-            margin-bottom: 7px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
             background: #111;
             border-radius: 7px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: #fff;
             border: 1px solid #333;
             transition: all 0.3s;
@@ -191,9 +202,9 @@
         }
 
         .controls {
-            margin-top: 30px;
+            margin-top: 28px;
             display: flex;
-            gap: 18px;
+            gap: 16px;
             flex-wrap: wrap;
             justify-content: center;
         }
@@ -202,8 +213,8 @@
             background: transparent;
             color: #fff;
             border: 2px solid #0ff;
-            padding: 13px 28px;
-            font-size: 1.05rem;
+            padding: 12px 26px;
+            font-size: 1rem;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
@@ -226,25 +237,35 @@
         }
 
         .message {
-            margin-top: 25px;
-            font-size: 1.4rem;
+            margin-top: 22px;
+            font-size: 1.35rem;
             font-weight: bold;
             color: #00ff9d;
             text-shadow: 0 0 5px #00ff9d, 0 0 15px #00ff9d, 0 0 30px #00ff9d;
-            min-height: 35px;
+            min-height: 32px;
             letter-spacing: 1px;
         }
     </style>
 </head>
 <body>
     <h1>🔍 CAÇA-PALAVRAS</h1>
-    <div class="info">Escolha a categoria e encontre todas as palavras!</div>
+    <div class="info">Escolha a categoria e o nível de dificuldade</div>
 
-    <div class="categorias">
-        <button class="categoria-btn ativo" onclick="escolherCategoria('animais')">🐾 ANIMAIS</button>
-        <button class="categoria-btn" onclick="escolherCategoria('objetos')">📦 OBJETOS</button>
-        <button class="categoria-btn" onclick="escolherCategoria('pessoas')">👤 NOMES DE PESSOAS</button>
-        <button class="categoria-btn" onclick="escolherCategoria('carros')">🚗 NOMES DE CARROS</button>
+    <div class="opcoes">
+        <div class="grupo">
+            <div class="grupo-titulo">CATEGORIA</div>
+            <button class="categoria-btn ativo" onclick="escolherCategoria('animais')">🐾 ANIMAIS</button>
+            <button class="categoria-btn" onclick="escolherCategoria('objetos')">📦 OBJETOS</button>
+            <button class="categoria-btn" onclick="escolherCategoria('pessoas')">👤 PESSOAS</button>
+            <button class="categoria-btn" onclick="escolherCategoria('carros')">🚗 CARROS</button>
+        </div>
+
+        <div class="grupo">
+            <div class="grupo-titulo">NÍVEL</div>
+            <button class="nivel-btn" onclick="escolherNivel('facil')">FÁCIL</button>
+            <button class="nivel-btn ativo" onclick="escolherNivel('medio')">MÉDIO</button>
+            <button class="nivel-btn" onclick="escolherNivel('dificil')">DIFÍCIL</button>
+        </div>
     </div>
 
     <div class="container">
@@ -264,8 +285,6 @@
     <div class="message" id="message"></div>
 
     <script>
-        const tamanho = 10;
-
         const categorias = {
             animais: [
                 "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
@@ -285,8 +304,17 @@
             ]
         };
 
-        let palavras = [...categorias.animais];
+        const niveis = {
+            facil:  { tamanho: 10, qtdPalavras: 6, tamanhoCelula: 40 },
+            medio:  { tamanho: 12, qtdPalavras: 8, tamanhoCelula: 34 },
+            dificil:{ tamanho: 14, qtdPalavras: 10, tamanhoCelula: 30 }
+        };
+
+        let palavrasCompletas = [...categorias.animais];
+        let palavras = [];
         let categoriaAtual = 'animais';
+        let nivelAtual = 'medio';
+        let tamanho = 12;
         let grade = [];
         let palavrasEncontradas = new Set();
         let selecionando = false;
@@ -306,12 +334,20 @@
 
         function escolherCategoria(cat) {
             categoriaAtual = cat;
-            palavras = [...categorias[cat]];
+            palavrasCompletas = [...categorias[cat]];
 
-            // Atualiza botões ativos
-            document.querySelectorAll('.categoria-btn').forEach(btn => {
-                btn.classList.remove('ativo');
-            });
+            document.querySelectorAll('.categoria-btn').forEach(btn => btn.classList.remove('ativo'));
+            event.target.classList.add('ativo');
+
+            novoJogo();
+        }
+
+        function escolherNivel(nivel) {
+            nivelAtual = nivel;
+            const config = niveis[nivel];
+            tamanho = config.tamanho;
+
+            document.querySelectorAll('.nivel-btn').forEach(btn => btn.classList.remove('ativo'));
             event.target.classList.add('ativo');
 
             novoJogo();
@@ -332,7 +368,7 @@
         }
 
         function colocarPalavra(palavra) {
-            const tentativas = 100;
+            const tentativas = 150;
             for (let t = 0; t < tentativas; t++) {
                 const dir = direcoes[Math.floor(Math.random() * direcoes.length)];
                 const linha = Math.floor(Math.random() * tamanho);
@@ -359,19 +395,32 @@
         }
 
         function gerarGrade() {
+            const config = niveis[nivelAtual];
+            // Embaralha e pega a quantidade de palavras do nível
+            const embaralhadas = [...palavrasCompletas].sort(() => Math.random() - 0.5);
+            palavras = embaralhadas.slice(0, config.qtdPalavras);
+
             grade = criarGradeVazia();
-            const palavrasEmbaralhadas = [...palavras].sort(() => Math.random() - 0.5);
-            palavrasEmbaralhadas.forEach(p => colocarPalavra(p));
+            palavras.forEach(p => colocarPalavra(p));
             preencherLetrasAleatorias();
         }
 
         function renderizarGrade() {
             const gridEl = document.getElementById('grid');
+            const config = niveis[nivelAtual];
+            const celula = config.tamanhoCelula;
+
+            gridEl.style.gridTemplateColumns = `repeat(${tamanho}, ${celula}px)`;
+            gridEl.style.gridTemplateRows = `repeat(${tamanho}, ${celula}px)`;
             gridEl.innerHTML = '';
+
             for (let i = 0; i < tamanho; i++) {
                 for (let j = 0; j < tamanho; j++) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
+                    cell.style.width = celula + 'px';
+                    cell.style.height = celula + 'px';
+                    cell.style.fontSize = (celula * 0.55) + 'px';
                     cell.textContent = grade[i][j];
                     cell.dataset.row = i;
                     cell.dataset.col = j;
@@ -401,8 +450,7 @@
             selecionando = true;
             caminhoSelecionado = [];
             direcaoAtual = null;
-            const cell = e.target;
-            adicionarAoCaminho(cell);
+            adicionarAoCaminho(e.target);
             e.preventDefault();
         }
 
@@ -504,8 +552,7 @@
         }
 
         function mostrarSolucao() {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(c => c.classList.remove('selected'));
+            document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
 
             palavras.forEach(palavra => {
                 if (!palavrasEncontradas.has(palavra)) {
@@ -544,7 +591,7 @@
         document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('mouseup', finalizarSelecao);
 
-        // Inicia com Animais
+        // Inicia no nível Médio
         novoJogo();
     </script>
 </body>
