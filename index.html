@@ -36,10 +36,35 @@
         }
 
         .info {
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             font-size: 1.1rem;
             color: #e0e0e0;
             text-shadow: 0 0 8px #0ff;
+        }
+
+        .timer-box {
+            background: #0a0a0a;
+            border: 2px solid #0ff;
+            border-radius: 12px;
+            padding: 10px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+
+        #timer {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            letter-spacing: 3px;
+            font-variant-numeric: tabular-nums;
         }
 
         .opcoes {
@@ -244,12 +269,19 @@
             text-shadow: 0 0 5px #00ff9d, 0 0 15px #00ff9d, 0 0 30px #00ff9d;
             min-height: 32px;
             letter-spacing: 1px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <h1>🔍 CAÇA-PALAVRAS</h1>
     <div class="info">Escolha a categoria e o nível de dificuldade</div>
+
+    <!-- CRONÔMETRO -->
+    <div class="timer-box">
+        <div class="timer-label">TEMPO</div>
+        <div id="timer">00:00</div>
+    </div>
 
     <div class="opcoes">
         <div class="grupo">
@@ -320,6 +352,37 @@
         let selecionando = false;
         let caminhoSelecionado = [];
         let direcaoAtual = null;
+
+        // === CRONÔMETRO ===
+        let segundos = 0;
+        let timerInterval = null;
+        let jogoFinalizado = false;
+
+        function formatarTempo(seg) {
+            const min = Math.floor(seg / 60);
+            const s = seg % 60;
+            return String(min).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        }
+
+        function iniciarTimer() {
+            pararTimer();
+            segundos = 0;
+            jogoFinalizado = false;
+            document.getElementById('timer').textContent = '00:00';
+            timerInterval = setInterval(() => {
+                if (!jogoFinalizado) {
+                    segundos++;
+                    document.getElementById('timer').textContent = formatarTempo(segundos);
+                }
+            }, 1000);
+        }
+
+        function pararTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
 
         const direcoes = [
             {dx: 0, dy: 1},
@@ -396,7 +459,6 @@
 
         function gerarGrade() {
             const config = niveis[nivelAtual];
-            // Embaralha e pega a quantidade de palavras do nível
             const embaralhadas = [...palavrasCompletas].sort(() => Math.random() - 0.5);
             palavras = embaralhadas.slice(0, config.qtdPalavras);
 
@@ -447,6 +509,7 @@
         }
 
         function iniciarSelecao(e) {
+            if (jogoFinalizado) return;
             selecionando = true;
             caminhoSelecionado = [];
             direcaoAtual = null;
@@ -455,7 +518,7 @@
         }
 
         function continuarSelecao(e) {
-            if (!selecionando) return;
+            if (!selecionando || jogoFinalizado) return;
             const cell = e.target;
             if (!cell.classList.contains('cell')) return;
 
@@ -508,7 +571,7 @@
         }
 
         function finalizarSelecao() {
-            if (!selecionando) return;
+            if (!selecionando || jogoFinalizado) return;
             selecionando = false;
 
             const palavra = caminhoSelecionado.map(c => c.textContent).join('');
@@ -539,7 +602,12 @@
 
         function verificarVitoria() {
             if (palavrasEncontradas.size === palavras.length) {
-                document.getElementById('message').textContent = '🎉 PARABÉNS! VOCÊ ENCONTROU TODAS AS PALAVRAS!';
+                jogoFinalizado = true;
+                pararTimer();
+
+                const tempoFinal = formatarTempo(segundos);
+                document.getElementById('message').textContent = 
+                    `🎉 PARABÉNS! Você terminou em ${tempoFinal}!`;
             }
         }
 
@@ -549,9 +617,11 @@
             gerarGrade();
             renderizarGrade();
             renderizarListaPalavras();
+            iniciarTimer();          // reinicia o cronômetro
         }
 
         function mostrarSolucao() {
+            if (jogoFinalizado) return;
             document.querySelectorAll('.cell').forEach(c => c.classList.remove('selected'));
 
             palavras.forEach(palavra => {
@@ -591,7 +661,7 @@
         document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('mouseup', finalizarSelecao);
 
-        // Inicia no nível Médio
+        // Inicia o jogo
         novoJogo();
     </script>
 </body>
