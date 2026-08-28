@@ -44,7 +44,7 @@
 
         .categorias {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 25px;
             flex-wrap: wrap;
             justify-content: center;
@@ -54,8 +54,8 @@
             background: transparent;
             color: #fff;
             border: 2px solid #ff00aa;
-            padding: 12px 22px;
-            font-size: 1rem;
+            padding: 11px 18px;
+            font-size: 0.95rem;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
@@ -244,6 +244,7 @@
         <button class="categoria-btn ativo" onclick="escolherCategoria('animais')">🐾 ANIMAIS</button>
         <button class="categoria-btn" onclick="escolherCategoria('objetos')">📦 OBJETOS</button>
         <button class="categoria-btn" onclick="escolherCategoria('pessoas')">👤 NOMES DE PESSOAS</button>
+        <button class="categoria-btn" onclick="escolherCategoria('carros')">🚗 NOMES DE CARROS</button>
     </div>
 
     <div class="container">
@@ -277,6 +278,10 @@
             pessoas: [
                 "ANA", "JOAO", "MARIA", "PEDRO", "LUCAS",
                 "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ"
+            ],
+            carros: [
+                "FUSCA", "GOL", "CIVIC", "COROLLA", "MUSTANG",
+                "CAMARO", "FERRARI", "PORSCHE", "TESLA", "ONIX"
             ]
         };
 
