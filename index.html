@@ -166,7 +166,7 @@
             flex-wrap: wrap;
             gap: 30px;
             justify-content: center;
-            max-width: 1200px;
+            max-width: 1300px;
         }
 
         #grid {
@@ -265,7 +265,6 @@
             opacity: 0.9;
         }
 
-        /* ===== TABELA DE RANKING ===== */
         .ranking-panel {
             background: #0a0a0a;
             padding: 20px;
@@ -370,19 +369,116 @@
             letter-spacing: 1px;
             text-align: center;
         }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.ativo {
+            display: flex;
+        }
+
+        .modal {
+            background: #0a0a0a;
+            border: 2px solid #ff00aa;
+            border-radius: 16px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 0 20px #ff00aa, 0 0 40px rgba(255, 0, 170, 0.4);
+            max-width: 420px;
+            width: 90%;
+            animation: aparecer 0.3s ease;
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal h2 {
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            color: #fff;
+            text-shadow: 0 0 10px #ff00aa, 0 0 20px #ff00aa;
+        }
+
+        .modal p {
+            font-size: 1.1rem;
+            color: #ccc;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        .modal-botoes {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-confirmar {
+            background: transparent;
+            color: #ff4d6d;
+            border: 2px solid #ff4d6d;
+            padding: 12px 28px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: 0 0 8px #ff4d6d;
+            box-shadow: 0 0 10px rgba(255, 77, 109, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-confirmar:hover {
+            background: #ff4d6d;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 15px #ff4d6d, 0 0 30px #ff4d6d;
+        }
+
+        .btn-cancelar {
+            background: transparent;
+            color: #0ff;
+            border: 2px solid #0ff;
+            padding: 12px 28px;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-shadow: 0 0 8px #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-cancelar:hover {
+            background: #0ff;
+            color: #000;
+            text-shadow: none;
+            box-shadow: 0 0 15px #0ff, 0 0 30px #0ff;
+        }
     </style>
 </head>
 <body>
     <h1>🔍 CAÇA-PALAVRAS</h1>
     <div class="info">Digite o nome do jogador e escolha a categoria/nível</div>
 
-    <!-- NOME DO JOGADOR -->
     <div class="jogador-box">
         <label for="nomeJogador">JOGADOR:</label>
         <input type="text" id="nomeJogador" placeholder="Digite seu nome..." maxlength="20" autocomplete="off">
     </div>
 
-    <!-- CRONÔMETRO -->
     <div class="timer-box">
         <div class="timer-label">TEMPO</div>
         <div id="timer">00:00</div>
@@ -402,6 +498,7 @@
             <button class="nivel-btn" onclick="escolherNivel('facil')">FÁCIL</button>
             <button class="nivel-btn ativo" onclick="escolherNivel('medio')">MÉDIO</button>
             <button class="nivel-btn" onclick="escolherNivel('dificil')">DIFÍCIL</button>
+            <button class="nivel-btn" onclick="escolherNivel('hard')">HARD</button>
         </div>
     </div>
 
@@ -414,7 +511,6 @@
         </div>
     </div>
 
-    <!-- TABELA DE RANKING -->
     <div class="ranking-panel">
         <h2>🏆 RANKING</h2>
         <table>
@@ -426,44 +522,60 @@
                     <th>NÍVEL</th>
                 </tr>
             </thead>
-            <tbody id="ranking-body">
-                <!-- preenchido pelo JS -->
-            </tbody>
+            <tbody id="ranking-body"></tbody>
         </table>
     </div>
 
     <div class="controls">
         <button onclick="novoJogo()">NOVO JOGO</button>
         <button onclick="mostrarSolucao()">MOSTRAR SOLUÇÃO</button>
-        <button onclick="limparRanking()">LIMPAR RANKING</button>
+        <button onclick="abrirModalLimpar()">LIMPAR RANKING</button>
     </div>
 
     <div class="message" id="message"></div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalLimpar">
+        <div class="modal">
+            <h2>⚠️ LIMPAR RANKING</h2>
+            <p>Tem certeza que deseja apagar<br>todo o ranking?<br><br>
+            <strong style="color:#ff4d6d;">Esta ação não pode ser desfeita!</strong></p>
+            <div class="modal-botoes">
+                <button class="btn-confirmar" onclick="confirmarLimparRanking()">SIM, APAGAR</button>
+                <button class="btn-cancelar" onclick="fecharModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const categorias = {
             animais: [
                 "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
-                "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA"
+                "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA",
+                "CAVALO", "ELEFANTE", "GIRAFA", "MACACO", "LOBO"
             ],
             objetos: [
                 "MESA", "CADEIRA", "LIVRO", "CANETA", "RELOGIO",
-                "CELULAR", "CHAVE", "OCULOS", "MOCHILA", "LAMPADA"
+                "CELULAR", "CHAVE", "OCULOS", "MOCHILA", "LAMPADA",
+                "COMPUTADOR", "TELEVISAO", "FOGAO", "GELADERIA", "VENTILADOR"
             ],
             pessoas: [
                 "ANA", "JOAO", "MARIA", "PEDRO", "LUCAS",
-                "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ"
+                "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ",
+                "GABRIEL", "LARISSA", "RAFAEL", "FERNANDA", "THIAGO"
             ],
             carros: [
                 "FUSCA", "GOL", "CIVIC", "COROLLA", "MUSTANG",
-                "CAMARO", "FERRARI", "PORSCHE", "TESLA", "ONIX"
+                "CAMARO", "FERRARI", "PORSCHE", "TESLA", "ONIX",
+                "HB20", "CRETA", "COMPASS", "TRACKER", "KICKS"
             ]
         };
 
         const niveis = {
-            facil:  { tamanho: 10, qtdPalavras: 6, tamanhoCelula: 40 },
-            medio:  { tamanho: 12, qtdPalavras: 8, tamanhoCelula: 34 },
-            dificil:{ tamanho: 14, qtdPalavras: 10, tamanhoCelula: 30 }
+            facil:  { tamanho: 10, qtdPalavras: 6,  tamanhoCelula: 40 },
+            medio:  { tamanho: 12, qtdPalavras: 8,  tamanhoCelula: 34 },
+            dificil:{ tamanho: 14, qtdPalavras: 10, tamanhoCelula: 30 },
+            hard:   { tamanho: 16, qtdPalavras: 12, tamanhoCelula: 26 }
         };
 
         let palavrasCompletas = [...categorias.animais];
@@ -477,7 +589,6 @@
         let caminhoSelecionado = [];
         let direcaoAtual = null;
 
-        // === CRONÔMETRO ===
         let segundos = 0;
         let timerInterval = null;
         let jogoFinalizado = false;
@@ -513,7 +624,6 @@
             return nome !== '' ? nome.toUpperCase() : 'JOGADOR';
         }
 
-        // === RANKING ===
         function carregarRanking() {
             const dados = localStorage.getItem('cacaPalavrasRanking');
             return dados ? JSON.parse(dados) : [];
@@ -531,13 +641,8 @@
                 nivel: nivel.toUpperCase(),
                 data: new Date().toLocaleDateString('pt-BR')
             });
-
-            // Ordena do menor tempo para o maior
             ranking.sort((a, b) => a.tempo - b.tempo);
-
-            // Mantém só os 10 melhores
             if (ranking.length > 10) ranking.length = 10;
-
             salvarRanking(ranking);
             renderizarRanking();
         }
@@ -569,42 +674,46 @@
             });
         }
 
-        function limparRanking() {
-            if (confirm('Tem certeza que deseja apagar todo o ranking?')) {
-                localStorage.removeItem('cacaPalavrasRanking');
-                renderizarRanking();
-            }
+        function abrirModalLimpar() {
+            document.getElementById('modalLimpar').classList.add('ativo');
         }
 
+        function fecharModal() {
+            document.getElementById('modalLimpar').classList.remove('ativo');
+        }
+
+        function confirmarLimparRanking() {
+            localStorage.removeItem('cacaPalavrasRanking');
+            renderizarRanking();
+            fecharModal();
+            document.getElementById('message').textContent = '🗑️ Ranking apagado com sucesso!';
+            setTimeout(() => {
+                document.getElementById('message').textContent = '';
+            }, 3000);
+        }
+
+        document.getElementById('modalLimpar').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
+        });
+
         const direcoes = [
-            {dx: 0, dy: 1},
-            {dx: 1, dy: 0},
-            {dx: 1, dy: 1},
-            {dx: 1, dy: -1},
-            {dx: 0, dy: -1},
-            {dx: -1, dy: 0},
-            {dx: -1, dy: 1},
-            {dx: -1, dy: -1}
+            {dx: 0, dy: 1}, {dx: 1, dy: 0}, {dx: 1, dy: 1}, {dx: 1, dy: -1},
+            {dx: 0, dy: -1}, {dx: -1, dy: 0}, {dx: -1, dy: 1}, {dx: -1, dy: -1}
         ];
 
         function escolherCategoria(cat) {
             categoriaAtual = cat;
             palavrasCompletas = [...categorias[cat]];
-
             document.querySelectorAll('.categoria-btn').forEach(btn => btn.classList.remove('ativo'));
             event.target.classList.add('ativo');
-
             novoJogo();
         }
 
         function escolherNivel(nivel) {
             nivelAtual = nivel;
-            const config = niveis[nivel];
-            tamanho = config.tamanho;
-
+            tamanho = niveis[nivel].tamanho;
             document.querySelectorAll('.nivel-btn').forEach(btn => btn.classList.remove('ativo'));
             event.target.classList.add('ativo');
-
             novoJogo();
         }
 
@@ -623,8 +732,7 @@
         }
 
         function colocarPalavra(palavra) {
-            const tentativas = 150;
-            for (let t = 0; t < tentativas; t++) {
+            for (let t = 0; t < 200; t++) {
                 const dir = direcoes[Math.floor(Math.random() * direcoes.length)];
                 const linha = Math.floor(Math.random() * tamanho);
                 const col = Math.floor(Math.random() * tamanho);
@@ -661,8 +769,7 @@
 
         function renderizarGrade() {
             const gridEl = document.getElementById('grid');
-            const config = niveis[nivelAtual];
-            const celula = config.tamanhoCelula;
+            const celula = niveis[nivelAtual].tamanhoCelula;
 
             gridEl.style.gridTemplateColumns = `repeat(${tamanho}, ${celula}px)`;
             gridEl.style.gridTemplateRows = `repeat(${tamanho}, ${celula}px)`;
@@ -693,9 +800,7 @@
                 const li = document.createElement('li');
                 li.textContent = p;
                 li.id = 'palavra-' + p;
-                if (palavrasEncontradas.has(p)) {
-                    li.classList.add('found');
-                }
+                if (palavrasEncontradas.has(p)) li.classList.add('found');
                 lista.appendChild(li);
             });
         }
@@ -796,14 +901,10 @@
             if (palavrasEncontradas.size === palavras.length) {
                 jogoFinalizado = true;
                 pararTimer();
-
                 const tempoFinal = formatarTempo(segundos);
                 const nome = pegarNomeJogador();
-
                 document.getElementById('message').textContent = 
                     `🎉 PARABÉNS, ${nome}! Você terminou em ${tempoFinal}!`;
-
-                // Adiciona no ranking
                 adicionarAoRanking(nome, segundos, nivelAtual);
             }
         }
@@ -858,7 +959,6 @@
         document.addEventListener('selectstart', e => e.preventDefault());
         document.addEventListener('mouseup', finalizarSelecao);
 
-        // Inicia
         renderizarRanking();
         novoJogo();
     </script>
