@@ -86,7 +86,7 @@
             border: 2px solid #0ff;
             border-radius: 12px;
             padding: 10px 24px;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
             box-shadow: 0 0 12px rgba(0, 255, 255, 0.4);
             text-align: center;
         }
@@ -104,6 +104,39 @@
             text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
             letter-spacing: 3px;
             font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== COMBO ===== */
+        .combo-box {
+            background: #0a0a0a;
+            border: 2px solid #ff00aa;
+            border-radius: 12px;
+            padding: 8px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 0 12px rgba(255, 0, 170, 0.4);
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .combo-label {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
+
+        #combo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff00aa;
+            text-shadow: 0 0 10px #ff00aa, 0 0 20px #ff00aa;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+        }
+
+        #combo.ativo {
+            transform: scale(1.3);
+            color: #fff;
+            text-shadow: 0 0 15px #ff00aa, 0 0 30px #ff00aa, 0 0 50px #ff00aa;
         }
 
         .opcoes {
@@ -241,6 +274,8 @@
 
         #word-list {
             list-style: none;
+            max-height: 420px;
+            overflow-y: auto;
         }
 
         #word-list li {
@@ -370,7 +405,30 @@
             text-align: center;
         }
 
-        /* MODAL */
+        /* Efeito de combo flutuante */
+        .combo-float {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #ff00aa;
+            text-shadow: 
+                0 0 10px #ff00aa,
+                0 0 30px #ff00aa,
+                0 0 60px #ff00aa;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 999;
+            transition: all 0.6s ease;
+        }
+
+        .combo-float.mostrar {
+            opacity: 1;
+            transform: translate(-50%, -70%) scale(1.2);
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -479,9 +537,16 @@
         <input type="text" id="nomeJogador" placeholder="Digite seu nome..." maxlength="20" autocomplete="off">
     </div>
 
-    <div class="timer-box">
-        <div class="timer-label">TEMPO</div>
-        <div id="timer">00:00</div>
+    <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center; margin-bottom:10px;">
+        <div class="timer-box">
+            <div class="timer-label">TEMPO</div>
+            <div id="timer">00:00</div>
+        </div>
+
+        <div class="combo-box">
+            <div class="combo-label">COMBO</div>
+            <div id="combo">x0</div>
+        </div>
     </div>
 
     <div class="opcoes">
@@ -534,7 +599,9 @@
 
     <div class="message" id="message"></div>
 
-    <!-- MODAL -->
+    <!-- Texto flutuante de combo -->
+    <div class="combo-float" id="comboFloat">COMBO x2</div>
+
     <div class="modal-overlay" id="modalLimpar">
         <div class="modal">
             <h2>⚠️ LIMPAR RANKING</h2>
@@ -550,24 +617,28 @@
     <script>
         const categorias = {
             animais: [
-                "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO",
-                "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA",
-                "CAVALO", "ELEFANTE", "GIRAFA", "MACACO", "LOBO"
+                "GATO", "CACHORRO", "PASSARO", "PEIXE", "COELHO", "LEAO", "TIGRE", "URSO", "RAPOSA", "CORUJA",
+                "CAVALO", "ELEFANTE", "GIRAFA", "MACACO", "LOBO", "PORCO", "VACA", "GALINHA", "PATO", "SAPO",
+                "COBRA", "JACARE", "TARTARUGA", "GOLFINHO", "TUBARAO", "AGUIA", "FALCAO", "PAPAGAIO", "HAMSTER", "RATO",
+                "MORCEGO", "ESQUILO", "PANDA", "ZEBRA", "RINOCERONTE", "HIPOPOTAMO", "CAMELO", "LHAMA", "PINGUIM", "FOCA"
             ],
             objetos: [
-                "MESA", "CADEIRA", "LIVRO", "CANETA", "RELOGIO",
-                "CELULAR", "CHAVE", "OCULOS", "MOCHILA", "LAMPADA",
-                "COMPUTADOR", "TELEVISAO", "FOGAO", "GELADERIA", "VENTILADOR"
+                "MESA", "CADEIRA", "LIVRO", "CANETA", "RELOGIO", "CELULAR", "CHAVE", "OCULOS", "MOCHILA", "LAMPADA",
+                "COMPUTADOR", "TELEVISAO", "FOGAO", "GELADERIA", "VENTILADOR", "SOFA", "CAMA", "TRAVESSEIRO", "COBERTOR", "ESPELHO",
+                "ESCOVA", "SABONETE", "TOALHA", "PRATO", "COPO", "GARFO", "FACA", "COLHER", "PANELA", "XICARA",
+                "BOLSA", "CARTEIRA", "CINTO", "SAPATO", "MEIA", "CAMISA", "CALCA", "BONE", "FONE", "CARREGADOR"
             ],
             pessoas: [
-                "ANA", "JOAO", "MARIA", "PEDRO", "LUCAS",
-                "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ",
-                "GABRIEL", "LARISSA", "RAFAEL", "FERNANDA", "THIAGO"
+                "ANA", "JOAO", "MARIA", "PEDRO", "LUCAS", "JULIA", "CARLOS", "SOFIA", "MIGUEL", "BEATRIZ",
+                "GABRIEL", "LARISSA", "RAFAEL", "FERNANDA", "THIAGO", "AMANDA", "BRUNO", "CAMILA", "DIEGO", "EDUARDA",
+                "FELIPE", "GIOVANA", "HENRIQUE", "ISABELA", "JORGE", "KARINA", "LEONARDO", "MARIANA", "NICOLAS", "OLIVIA",
+                "PAULO", "QUEILA", "ROBERTO", "SABRINA", "TIAGO", "VANESSA", "WILLIAM", "YASMIN", "ARTHUR", "HELENA"
             ],
             carros: [
-                "FUSCA", "GOL", "CIVIC", "COROLLA", "MUSTANG",
-                "CAMARO", "FERRARI", "PORSCHE", "TESLA", "ONIX",
-                "HB20", "CRETA", "COMPASS", "TRACKER", "KICKS"
+                "FUSCA", "GOL", "CIVIC", "COROLLA", "MUSTANG", "CAMARO", "FERRARI", "PORSCHE", "TESLA", "ONIX",
+                "HB20", "CRETA", "COMPASS", "TRACKER", "KICKS", "POLO", "VIRTUS", "JETTA", "TIGUAN", "RENEGADE",
+                "COMMANDER", "TORO", "STRADA", "SAVEIRO", "HILUX", "RANGER", "S10", "SW4", "BMW", "AUDI",
+                "MERCEDES", "VOLVO", "JEEP", "FIAT", "CHEVROLET", "TOYOTA", "HONDA", "NISSAN", "HYUNDAI", "KIA"
             ]
         };
 
@@ -575,7 +646,7 @@
             facil:  { tamanho: 10, qtdPalavras: 6,  tamanhoCelula: 40 },
             medio:  { tamanho: 12, qtdPalavras: 8,  tamanhoCelula: 34 },
             dificil:{ tamanho: 14, qtdPalavras: 10, tamanhoCelula: 30 },
-            hard:   { tamanho: 16, qtdPalavras: 12, tamanhoCelula: 26 }
+            hard:   { tamanho: 16, qtdPalavras: 14, tamanhoCelula: 26 }
         };
 
         let palavrasCompletas = [...categorias.animais];
@@ -592,6 +663,25 @@
         let segundos = 0;
         let timerInterval = null;
         let jogoFinalizado = false;
+
+        // ===== COMBO =====
+        let combo = 0;
+        let maxCombo = 0;
+
+        function atualizarCombo() {
+            const el = document.getElementById('combo');
+            el.textContent = 'x' + combo;
+            el.classList.add('ativo');
+            setTimeout(() => el.classList.remove('ativo'), 300);
+
+            // Mostra texto flutuante
+            if (combo >= 2) {
+                const float = document.getElementById('comboFloat');
+                float.textContent = 'COMBO x' + combo + '!';
+                float.classList.add('mostrar');
+                setTimeout(() => float.classList.remove('mostrar'), 800);
+            }
+        }
 
         function formatarTempo(seg) {
             const min = Math.floor(seg / 60);
@@ -732,7 +822,7 @@
         }
 
         function colocarPalavra(palavra) {
-            for (let t = 0; t < 200; t++) {
+            for (let t = 0; t < 250; t++) {
                 const dir = direcoes[Math.floor(Math.random() * direcoes.length)];
                 const linha = Math.floor(Math.random() * tamanho);
                 const col = Math.floor(Math.random() * tamanho);
@@ -888,8 +978,19 @@
                     c.classList.add('found');
                 });
                 document.getElementById('palavra-' + encontrada).classList.add('found');
+
+                // Aumenta o COMBO
+                combo++;
+                if (combo > maxCombo) maxCombo = combo;
+                atualizarCombo();
+
                 verificarVitoria();
             } else {
+                // Errou → reseta o combo
+                if (caminhoSelecionado.length > 1) {
+                    combo = 0;
+                    document.getElementById('combo').textContent = 'x0';
+                }
                 caminhoSelecionado.forEach(c => c.classList.remove('selected'));
             }
 
@@ -901,17 +1002,30 @@
             if (palavrasEncontradas.size === palavras.length) {
                 jogoFinalizado = true;
                 pararTimer();
-                const tempoFinal = formatarTempo(segundos);
+
+                // Bônus de tempo por combo (máximo 25 segundos de bônus)
+                const bonus = Math.min(combo * 2, 25);
+                const tempoFinal = Math.max(0, segundos - bonus);
+
+                const tempoStr = formatarTempo(tempoFinal);
                 const nome = pegarNomeJogador();
-                document.getElementById('message').textContent = 
-                    `🎉 PARABÉNS, ${nome}! Você terminou em ${tempoFinal}!`;
-                adicionarAoRanking(nome, segundos, nivelAtual);
+
+                let msg = `🎉 PARABÉNS, ${nome}! Você terminou em ${tempoStr}!`;
+                if (bonus > 0) {
+                    msg += ` (Combo x${combo} → -${bonus}s de bônus)`;
+                }
+
+                document.getElementById('message').textContent = msg;
+                adicionarAoRanking(nome, tempoFinal, nivelAtual);
             }
         }
 
         function novoJogo() {
             palavrasEncontradas.clear();
             document.getElementById('message').textContent = '';
+            combo = 0;
+            maxCombo = 0;
+            document.getElementById('combo').textContent = 'x0';
             gerarGrade();
             renderizarGrade();
             renderizarListaPalavras();
